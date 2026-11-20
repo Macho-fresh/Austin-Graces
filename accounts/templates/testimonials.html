@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Patient Testimonials | {{ site.clinic_name|default:"Austin Graces Dental Clinic" }}{% endblock %}
+{% block meta_description %}Read feedback from patients of {{ site.clinic_name|default:"Austin Graces Dental Clinic" }}.{% endblock %}
+{% block content %}
+{% include "partials/page_banner.html" with title="Patient testimonials" intro="Feedback from the people we care for." %}
+<section class="ag-section"><div class="container">
+  {% if sample_content %}<p class="ag-alert ag-alert--warning">The reviews below are sample content and are not real patient reviews. They will be replaced when verified reviews are added.</p>{% endif %}
+  <div class="row g-4">
+    {% for testimonial in testimonials %}<div class="col-md-6 col-lg-4">{% include "partials/testimonial_card.html" %}</div>
+    {% empty %}<div class="col-12"><p class="ag-alert ag-alert--info">No reviews have been published yet.</p></div>{% endfor %}
+  </div>
+  {% include "partials/pagination.html" %}
+</div></section>
+{% include "partials/cta_band.html" %}
+{% endblock %}

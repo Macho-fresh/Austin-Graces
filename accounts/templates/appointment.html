@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load static %}
+{% comment %}
+Context: form (fields full_name, email, phone, service, dentist, date, time, message; use form.<field>.value and .errors),
+services, dentists, available_slots [{value,label}] (optional, for a re-rendered date), booking_success (bool), booking (object, on success),
+selected_service / selected_dentist slugs (from ?service= / ?dentist=).
+Endpoint expected: URL name appointment_slots, GET ?date=YYYY-MM-DD&dentist=<id> -> {"slots":[{"value":"09:00","label":"9:00 AM"}]}
+{% endcomment %}
+{% block title %}Book an Appointment | {{ site.clinic_name|default:"Austin Graces Dental Clinic" }}{% endblock %}
+{% block meta_description %}Request a dental appointment online with {{ site.clinic_name|default:"Austin Graces Dental Clinic" }} in New Haven, Enugu.{% endblock %}
+{% block content %}
+{% include "partials/page_banner.html" with title="Book an appointment" intro="Tell us what you need and when. We will confirm your visit by phone or email." %}
+<section class="ag-section"><div class="container"><div class="row g-5">
+  <div class="col-lg-8">
+  {% if booking_success %}
+    <div class="ag-panel ag-success" role="status">
+      <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+      <h2>Request received</h2>
+      <p>Thank you{% if booking %}, {{ booking.full_name }}{% endif %}. We have your request{% if booking %} for <strong>{{ booking.service }}</strong> on <strong>{{ booking.date|date:"l, j F Y" }}</strong> at <strong>{{ booking.time|time:"g:i A" }}</strong>{% endif %}. We will contact you to confirm.</p>
+      <a class="ag-btn ag-btn--navy" href="{% url 'home' %}">Back to home</a>
+    </div>
+  {% else %}
+    {% if form.non_field_errors %}<div class="ag-alert ag-alert--error" role="alert">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>{% endif %}
+    <form id="appointmentForm" class="ag-panel" method="post" action="{% url 'appointment' %}" novalidate data-validate data-confirm-flow data-slots-url="{% url 'appointment_slots' %}">
+      {% csrf_token %}
+      <p class="ag-help">Fields marked <span class="ag-req" aria-hidden="true">*</span> are required.</p>
+      <div class="row g-3">
+        <div class="col-md-6 ag-field {% if form.full_name.errors %}has-error{% endif %}">
+          <label class="ag-label" for="id_full_name">Full name <span class="ag-req" aria-hidden="true">*</span></label>
+          <input class="ag-input" id="id_full_name" name="full_name" type="text" autocomplete="name" required value="{{ form.full_name.value|default:'' }}" aria-describedby="err_full_name">
+          <p class="ag-error" id="err_full_name">{{ form.full_name.errors.0|default:"Enter your full name." }}</p>
+        </div>
+        <div class="col-md-6 ag-field {% if form.email.errors %}has-error{% endif %}">
+          <label class="ag-label" for="id_email">Email address <span class="ag-req" aria-hidden="true">*</span></label>
+          <input class="ag-input" id="id_email" name="email" type="email" autocomplete="email" required value="{{ form.email.value|default:'' }}" aria-describedby="err_email">
+          <p class="ag-error" id="err_email">{{ form.email.errors.0|default:"Enter a valid email address." }}</p>
+        </div>
+        <div class="col-md-6 ag-field {% if form.phone.errors %}has-error{% endif %}">
+          <label class="ag-label" for="id_phone">Phone number <span class="ag-req" aria-hidden="true">*</span></label>
+          <input class="ag-input" id="id_phone" name="phone" type="tel" autocomplete="tel" required pattern="[0-9+\s()\-]{7,20}" value="{{ form.phone.value|default:'' }}" aria-describedby="err_phone">
+          <p class="ag-error" id="err_phone">{{ form.phone.errors.0|default:"Enter a phone number we can reach you on." }}</p>
+        </div>
+        <div class="col-md-6 ag-field {% if form.service.errors %}has-error{% endif %}">
+          <label class="ag-label" for="id_service">Dental service <span class="ag-req" aria-hidden="true">*</span></label>
+          <select class="ag-select" id="id_service" name="service" required aria-describedby="err_service">
+            <option value="">Choose a service</option>
+            {% for s in services %}<option value="{{ s.pk }}" {% if form.service.value|stringformat:"s" == s.pk|stringformat:"s" or selected_service == s.slug %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
+          </select>
+          <p class="ag-error" id="err_service">{{ form.service.errors.0|default:"Choose a service." }}</p>
+        </div>
+        <div class="col-md-6 ag-field {% if form.dentist.errors %}has-error{% endif %}">
+          <label class="ag-label" for="id_dentist">Preferred dentist <span class="ag-req" aria-hidden="true">*</span></label>
+          <select class="ag-select" id="id_dentist" name="dentist" required aria-describedby="err_dentist">
+            <option value="">Choose a dentist</option>
+            {% for d in dentists %}<option value="{{ d.pk }}" {% if form.dentist.value|stringformat:"s" == d.pk|stringformat:"s" or selected_dentist == d.slug %}selected{% endif %}>{{ d.full_name }}</option>{% endfor %}
+          </select>
+          <p class="ag-error" id="err_dentist">{{ form.dentist.errors.0|default:"Choose a dentist." }}</p>
+        </div>
+        <div class="col-md-6 ag-field {% if form.date.errors %}has-error{% endif %}">
+          <label class="ag-label" for="id_date">Preferred date <span class="ag-req" aria-hidden="true">*</span></label>
+          <input class="ag-input" id="id_date" name="date" type="date" required value="{{ form.date.value|default:'' }}" aria-describedby="err_date">
+          <p class="ag-error" id="err_date">{{ form.date.errors.0|default:"Choose a date from today onwards." }}</p>
+        </div>
+        <div class="col-12 ag-field {% if form.time.errors %}has-error{% endif %}">
+          <fieldset>
+            <legend class="ag-label">Preferred time <span class="ag-req" aria-hidden="true">*</span></legend>
+            <div class="ag-slots" id="slotGrid" role="radiogroup" aria-describedby="err_time">
+              {% for slot in available_slots %}
+                <label class="ag-slot"><input type="radio" name="time" value="{{ slot.value }}" {% if form.time.value == slot.value %}checked{% endif %} required><span>{{ slot.label }}</span></label>
+              {% empty %}
+                <p class="ag-help" id="slotHint">Choose a dentist and date to see available times.</p>
+              {% endfor %}
+            </div>
+            <p class="ag-error" id="err_time">{{ form.time.errors.0|default:"Choose a time slot." }}</p>
+          </fieldset>
+        </div>
+        <div class="col-12 ag-field">
+          <label class="ag-label" for="id_message">Additional message</label>
+          <textarea class="ag-textarea" id="id_message" name="message" rows="4" maxlength="1000">{{ form.message.value|default:'' }}</textarea>
+          <p class="ag-help">Optional. Tell us about pain, previous treatment or anything else we should know.</p>
+        </div>
+      </div>
+      <button class="ag-btn ag-btn--primary" type="submit" id="bookBtn">Review and request appointment</button>
+
+      <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered"><div class="modal-content ag-modal">
+          <div class="modal-header"><h2 class="modal-title h4" id="confirmTitle">Confirm your request</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+          <div class="modal-body"><dl class="ag-summary" id="confirmSummary"></dl><p class="ag-help">This is a request. The clinic will confirm your time.</p></div>
+          <div class="modal-footer"><button type="button" class="ag-btn ag-btn--outline ag-btn--sm" data-bs-dismiss="modal">Edit details</button><button type="button" class="ag-btn ag-btn--primary ag-btn--sm" id="confirmSubmit">Send request</button></div>
+        </div></div>
+      </div>
+    </form>
+  {% endif %}
+  </div>
+  <aside class="col-lg-4"><div class="ag-panel ag-sticky">
+    <h2 class="h4">Clinic details</h2>
+    {% include "partials/clinic_info.html" %}
+    <h3 class="h5 mt-4">What happens next</h3>
+    <ol class="ag-steps ag-steps--sm"><li>We review your request.</li><li>We email to confirm the time.</li><li>You receive any preparation advice.</li></ol>
+  </div></aside>
+</div></div></section>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/validation.js' %}"></script><script src="{% static 'js/appointment.js' %}"></script>{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Frequently Asked Questions | {{ site.clinic_name|default:"Austin Graces Dental Clinic" }}{% endblock %}
+{% block meta_description %}Answers about appointments, cleaning, whitening, braces, payment, emergencies and opening hours.{% endblock %}
+{% block content %}
+{% include "partials/page_banner.html" with title="Frequently asked questions" intro="Quick answers before you visit." %}
+<section class="ag-section"><div class="container ag-narrow">
+  <div class="ag-faq-tools">
+    <div class="ag-field"><label class="ag-label" for="faqSearch">Search questions</label><input class="ag-input" id="faqSearch" type="search" placeholder="For example: whitening" autocomplete="off"></div>
+    <div class="ag-chips" role="group" aria-label="Filter by topic">
+      <button type="button" class="ag-chip is-active" data-filter="">All</button>
+      {% for cat in faq_categories %}<button type="button" class="ag-chip" data-filter="{{ cat }}">{{ cat }}</button>{% endfor %}
+    </div>
+  </div>
+  <p class="ag-help" id="faqCount" aria-live="polite"></p>
+  <div class="ag-accordion" data-accordion id="faqList">
+    {% for faq in faqs %}{% include "partials/faq_item.html" with uid=forloop.counter %}{% empty %}<p class="ag-alert ag-alert--info">No questions have been added yet.</p>{% endfor %}
+  </div>
+  <p id="faqEmpty" class="ag-alert ag-alert--info" hidden>No questions match your search. <a href="{% url 'contact' %}">Ask us directly</a>.</p>
+</div></section>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/faq.js' %}"></script>{% endblock %}

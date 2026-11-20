@@ -1,0 +1,28 @@
+{% extends "clinic_admin/base_admin.html" %}
+{% comment %}
+Context: page_obj (reviews: name, rating, comment, created_at, is_published, is_verified, pk).
+POST URLs: admin_testimonial_toggle(pk), admin_testimonial_delete(pk).
+{% endcomment %}
+{% block title %}Testimonials{% endblock %}
+{% block page_title %}Testimonials{% endblock %}
+{% block content %}
+<div class="ad-head"><div><h1>Testimonials</h1><p>Approve and publish patient reviews. Only mark a review verified if you have confirmed it.</p></div></div>
+<section class="ad-card ad-card--flush"><div class="ag-tablewrap"><table class="ag-table ag-table-stack">
+  <thead><tr><th scope="col">Patient</th><th scope="col">Rating</th><th scope="col">Review</th><th scope="col">Date</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+  <tbody>
+  {% for t in page_obj %}
+    <tr>
+      <td data-label="Patient">{{ t.name|default:"Anonymous" }}{% if t.is_verified %}<br><span class="ag-badge ag-badge--completed">Verified</span>{% else %}<br><span class="ag-badge">Sample</span>{% endif %}</td>
+      <td data-label="Rating"><span class="ag-stars" role="img" aria-label="{{ t.rating }} out of 5">{{ t.rating }}/5</span></td>
+      <td data-label="Review">{{ t.comment|truncatechars:120 }}</td>
+      <td data-label="Date">{{ t.created_at|date:"j M Y" }}</td>
+      <td data-label="Status"><span class="ag-badge {% if t.is_published %}ag-badge--on{% else %}ag-badge--off{% endif %}">{% if t.is_published %}Published{% else %}Hidden{% endif %}</span></td>
+      <td data-label="Actions"><div class="ad-actions">
+        <button type="button" class="ag-btn ag-btn--outline ad-btn-icon" data-post-url="{% url 'admin_testimonial_toggle' t.pk %}">{% if t.is_published %}Unpublish{% else %}Approve and publish{% endif %}</button>
+        <button type="button" class="ag-btn ag-btn--outline ad-btn-icon" data-confirm-url="{% url 'admin_testimonial_delete' t.pk %}" data-confirm-title="Delete review?" data-confirm-text="This review will be permanently deleted." data-confirm-label="Delete">Delete</button>
+      </div></td>
+    </tr>
+  {% empty %}<tr><td colspan="6"><div class="ag-empty"><i class="bi bi-chat-quote" aria-hidden="true"></i><p>No reviews yet.</p></div></td></tr>{% endfor %}
+  </tbody></table></div></section>
+{% include "partials/pagination.html" %}
+{% endblock %}

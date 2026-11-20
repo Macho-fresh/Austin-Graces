@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Our Dentists | {{ site.clinic_name|default:"Austin Graces Dental Clinic" }}{% endblock %}
+{% block meta_description %}Meet the dentists at {{ site.clinic_name|default:"Austin Graces Dental Clinic" }} in New Haven, Enugu.{% endblock %}
+{% block content %}
+{% include "partials/page_banner.html" with title="Our dentists" intro="Experienced, approachable professionals who put your comfort first." %}
+<section class="ag-section"><div class="container"><div class="row g-4">
+  {% for dentist in dentists %}<div class="col-md-6 col-lg-4">{% include "partials/dentist_card.html" %}</div>
+  {% empty %}<div class="col-12"><p class="ag-alert ag-alert--info">Dentist profiles will appear here once they are added.</p></div>{% endfor %}
+</div></div></section>
+{% include "partials/cta_band.html" %}
+{% endblock %}

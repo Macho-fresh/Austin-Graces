@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Contact Us | {{ site.clinic_name|default:"Austin Graces Dental Clinic" }}{% endblock %}
+{% block meta_description %}Phone, email, address and opening hours for {{ site.clinic_name|default:"Austin Graces Dental Clinic" }} in New Haven, Enugu.{% endblock %}
+{% block content %}
+{% include "partials/page_banner.html" with title="Contact us" intro="Questions before you book? Send us a message or call." %}
+<section class="ag-section"><div class="container"><div class="row g-5">
+  <div class="col-lg-5">
+    <h2>Get in touch</h2>
+    {% include "partials/clinic_info.html" %}
+    <div class="ag-hero__actions">
+      {% if site.whatsapp %}<a class="ag-btn ag-btn--primary" href="https://wa.me/{{ site.whatsapp }}" rel="noopener"><i class="bi bi-whatsapp" aria-hidden="true"></i>Chat on WhatsApp</a>{% endif %}
+      <a class="ag-btn ag-btn--outline" href="tel:{{ site.phone }}"><i class="bi bi-telephone" aria-hidden="true"></i>Call us</a>
+    </div>
+    <ul class="ag-social ag-social--dark mt-4" aria-label="Social media">
+      <li><a href="{{ site.facebook_url|default:'#' }}" aria-label="Facebook" rel="noopener"><i class="bi bi-facebook"></i></a></li>
+      <li><a href="{{ site.instagram_url|default:'#' }}" aria-label="Instagram" rel="noopener"><i class="bi bi-instagram"></i></a></li>
+      <li><a href="{{ site.x_url|default:'#' }}" aria-label="X (Twitter)" rel="noopener"><i class="bi bi-twitter-x"></i></a></li>
+    </ul>
+  </div>
+  <div class="col-lg-7">
+    <form class="ag-panel" method="post" action="{% url 'contact' %}" novalidate data-validate>
+      {% csrf_token %}
+      <h2 class="h4">Send a message</h2>
+      <div class="ag-field {% if form.name.errors %}has-error{% endif %}"><label class="ag-label" for="c_name">Your name <span class="ag-req" aria-hidden="true">*</span></label><input class="ag-input" id="c_name" name="name" required autocomplete="name" value="{{ form.name.value|default:'' }}"><p class="ag-error">{{ form.name.errors.0|default:"Enter your name." }}</p></div>
+      <div class="ag-field {% if form.email.errors %}has-error{% endif %}"><label class="ag-label" for="c_email">Email <span class="ag-req" aria-hidden="true">*</span></label><input class="ag-input" id="c_email" type="email" name="email" required autocomplete="email" value="{{ form.email.value|default:'' }}"><p class="ag-error">{{ form.email.errors.0|default:"Enter a valid email address." }}</p></div>
+      <div class="ag-field"><label class="ag-label" for="c_phone">Phone</label><input class="ag-input" id="c_phone" type="tel" name="phone" autocomplete="tel" value="{{ form.phone.value|default:'' }}"></div>
+      <div class="ag-field {% if form.message.errors %}has-error{% endif %}"><label class="ag-label" for="c_msg">Message <span class="ag-req" aria-hidden="true">*</span></label><textarea class="ag-textarea" id="c_msg" name="message" required rows="5">{{ form.message.value|default:'' }}</textarea><p class="ag-error">{{ form.message.errors.0|default:"Write a short message." }}</p></div>
+      <button class="ag-btn ag-btn--primary" type="submit">Send message</button>
+    </form>
+  </div>
+</div>
+<div class="mt-5">{% include "partials/map_embed.html" %}</div>
+</div></section>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/validation.js' %}"></script>{% endblock %}

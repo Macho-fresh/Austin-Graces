@@ -1,0 +1,17 @@
+{% extends "accounts/base_account.html" %}
+{% load static %}
+{% comment %}Context: page_obj (appointments), status_filter ("", upcoming, past, cancelled), query_string{% endcomment %}
+{% block title %}My Appointments | {{ site.clinic_name|default:"Austin Graces Dental Clinic" }}{% endblock %}
+{% block meta_description %}View, filter and cancel your dental appointments.{% endblock %}
+{% block account_content %}
+<div class="ag-portal__head"><h1>My appointments</h1><a class="ag-btn ag-btn--primary ag-btn--sm" href="{% url 'appointment' %}">Book appointment</a></div>
+<nav class="ag-tabs" aria-label="Filter appointments">
+  <a href="{% url 'my_appointments' %}" {% if not status_filter %}aria-current="true"{% endif %}>All</a>
+  <a href="?status=upcoming" {% if status_filter == 'upcoming' %}aria-current="true"{% endif %}>Upcoming</a>
+  <a href="?status=past" {% if status_filter == 'past' %}aria-current="true"{% endif %}>Past</a>
+  <a href="?status=cancelled" {% if status_filter == 'cancelled' %}aria-current="true"{% endif %}>Cancelled</a>
+</nav>
+<div class="ag-panel p-0">{% include "partials/appointment_table.html" with appointments=page_obj show_cancel=True empty_text="No appointments match this filter." %}</div>
+{% include "partials/pagination.html" with query=query_string %}
+{% include "partials/cancel_modal.html" %}
+{% endblock %}

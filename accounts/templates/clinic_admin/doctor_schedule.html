@@ -1,0 +1,59 @@
+{% extends "clinic_admin/base_admin.html" %}
+{% comment %}
+Context (doctor_schedule view): dentist, day (date), is_today, prev_day, next_day,
+week_days [{date, count, is_today, is_selected}], appointments (list for the day), stats{day_count, pending, upcoming}
+Appointment: pk, time, full_name, phone, service, message, status, get_status_display, can_complete
+POST URL: doctor_appointment_complete(pk)
+{% endcomment %}
+{% block title %}My schedule{% endblock %}
+{% block page_title %}My schedule{% endblock %}
+{% block sidebar %}{% include "partials/doctor_sidebar.html" %}{% endblock %}
+{% block content %}
+<div class="ad-head">
+  <div><h1>{{ day|date:"l, j F Y" }}</h1><p>{% if is_today %}Today. {% endif %}{{ dentist.full_name }}</p></div>
+  <div class="ad-actions">
+    <a class="ag-btn ag-btn--outline ag-btn--sm" href="?date={{ prev_day|date:'Y-m-d' }}" aria-label="Previous day"><i class="bi bi-chevron-left" aria-hidden="true"></i></a>
+    <a class="ag-btn ag-btn--outline ag-btn--sm" href="{% url 'doctor_schedule' %}">Today</a>
+    <a class="ag-btn ag-btn--outline ag-btn--sm" href="?date={{ next_day|date:'Y-m-d' }}" aria-label="Next day"><i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+    <form class="ad-datepick" method="get" action="{% url 'doctor_schedule' %}">
+      <label class="visually-hidden" for="pickDate">Go to date</label>
+      <input class="ag-input" id="pickDate" type="date" name="date" value="{{ day|date:'Y-m-d' }}" required>
+      <button class="ag-btn ag-btn--navy ag-btn--sm" type="submit" data-no-loading>Go</button>
+    </form>
+  </div>
+</div>
+
+<div class="ad-stats ad-stats--3">
+  <div class="ad-stat ad-stat--teal"><strong>{{ stats.day_count }}</strong><span>On this day</span></div>
+  <div class="ad-stat ad-stat--warn"><strong>{{ stats.pending }}</strong><span>Awaiting confirmation</span></div>
+  <div class="ad-stat"><strong>{{ stats.upcoming }}</strong><span>Upcoming in total</span></div>
+</div>
+
+<nav class="dr-week" aria-label="This week">
+  {% for d in week_days %}
+  <a class="dr-day {% if d.is_today %}dr-day--today{% endif %}" href="?date={{ d.date|date:'Y-m-d' }}" {% if d.is_selected %}aria-current="date"{% endif %}>
+    <small>{{ d.date|date:"D" }}</small><strong>{{ d.date|date:"j" }}</strong><small>{{ d.count }} appt{{ d.count|pluralize }}</small>
+  </a>
+  {% endfor %}
+</nav>
+
+<section class="ad-card ad-card--flush" aria-label="Appointments on {{ day|date:'j F Y' }}">
+  <div class="ag-tablewrap"><table class="ag-table ag-table-stack">
+    <thead><tr><th scope="col">Time</th><th scope="col">Patient</th><th scope="col">Service</th><th scope="col">Notes</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+    <tbody>
+    {% for a in appointments %}
+      <tr>
+        <td data-label="Time"><strong>{{ a.time|time:"g:i A" }}</strong></td>
+        <td data-label="Patient">{{ a.full_name }}<br><a href="tel:{{ a.phone }}">{{ a.phone }}</a></td>
+        <td data-label="Service">{{ a.service }}</td>
+        <td data-label="Notes">{{ a.message|default:"-"|truncatechars:90 }}</td>
+        <td data-label="Status"><span class="ag-badge ag-badge--{{ a.status }}">{{ a.get_status_display }}</span></td>
+        <td data-label="Actions">{% if a.can_complete %}<button type="button" class="ag-btn ag-btn--navy ad-btn-icon" data-post-url="{% url 'doctor_appointment_complete' a.pk %}">Mark completed</button>{% endif %}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="6"><div class="ag-empty"><i class="bi bi-calendar-check" aria-hidden="true"></i><p>No appointments on this day.</p></div></td></tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</section>
+{% endblock %}

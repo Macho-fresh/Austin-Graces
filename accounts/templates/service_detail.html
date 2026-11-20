@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ service.name }} | {{ site.clinic_name|default:"Austin Graces Dental Clinic" }}{% endblock %}
+{% block meta_description %}{{ service.short_description|truncatechars:155 }}{% endblock %}
+{% block content %}
+{% include "partials/page_banner.html" with title=service.name intro=service.short_description crumb=service.name %}
+<section class="ag-section">
+  <div class="container"><div class="row g-5">
+    <div class="col-lg-8">
+      {% if service.image %}<img class="ag-photo mb-4" src="{{ service.image.url }}" alt="{{ service.name }}" width="800" height="500">{% endif %}
+      <h2>About this treatment</h2>
+      <div>{{ service.description|linebreaks }}</div>
+
+      {% if benefits %}<h2 class="mt-5">Benefits</h2><ul class="ag-checks">{% for b in benefits %}<li>{{ b }}</li>{% endfor %}</ul>{% endif %}
+
+      {% if expectations %}<h2 class="mt-5">What to expect</h2>
+        <ol class="ag-steps">{% for step in expectations %}<li>{{ step }}</li>{% endfor %}</ol>{% endif %}
+
+      {% if faqs %}<h2 class="mt-5">Questions about {{ service.name|lower }}</h2>
+        <div class="ag-accordion" data-accordion>{% for faq in faqs %}{% include "partials/faq_item.html" with uid=forloop.counter %}{% endfor %}</div>{% endif %}
+    </div>
+    <aside class="col-lg-4">
+      <div class="ag-panel ag-sticky">
+        <h2 class="h4">Book {{ service.name }}</h2>
+        <p>Request a time that suits you. We will confirm by phone or email.</p>
+        <a class="ag-btn ag-btn--primary ag-btn--block" href="{% url 'appointment' %}?service={{ service.slug }}">Book Appointment</a>
+        {% if related_services %}<h3 class="h5 mt-4">Related services</h3>
+        <ul class="ag-plain">{% for rs in related_services %}<li><a href="{% url 'service_detail' rs.slug %}">{{ rs.name }}</a></li>{% endfor %}</ul>{% endif %}
+      </div>
+    </aside>
+  </div></div>
+</section>
+{% include "partials/cta_band.html" %}
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/faq.js' %}"></script>{% endblock %}

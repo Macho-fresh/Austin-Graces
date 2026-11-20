@@ -1,0 +1,45 @@
+{% extends "clinic_admin/base_admin.html" %}
+{% load static %}
+{% comment %}
+Context: settings (clinic_name, tagline, logo, phone, email, address, whatsapp, map_embed_url, facebook_url, instagram_url, x_url,
+about_summary, booking_enabled, opening_hours [{days, hours}]). POST URL: admin_settings (multipart). Hours arrive as lists hours_days[] and hours_text[].
+{% endcomment %}
+{% block title %}Website settings{% endblock %}
+{% block page_title %}Settings{% endblock %}
+{% block content %}
+<div class="ad-head"><div><h1>Website settings</h1><p>These details appear in the header, footer and contact pages.</p></div></div>
+<form method="post" action="{% url 'admin_settings' %}" enctype="multipart/form-data">{% csrf_token %}
+  <div class="ad-card mb-4"><h2 class="h5">Clinic</h2><div class="row g-3">
+    <div class="col-md-6 ag-field"><label class="ag-label" for="st_name">Clinic name</label><input class="ag-input" id="st_name" name="clinic_name" value="{{ settings.clinic_name }}" required></div>
+    <div class="col-md-6 ag-field"><label class="ag-label" for="st_tag">Short tagline</label><input class="ag-input" id="st_tag" name="tagline" value="{{ settings.tagline }}"></div>
+    <div class="col-12 ag-field"><label class="ag-label" for="st_about">Home page introduction</label><textarea class="ag-textarea" id="st_about" name="about_summary" rows="3">{{ settings.about_summary }}</textarea></div>
+    <div class="col-12 ag-field"><label class="ag-label" for="st_logo">Logo</label><input class="ag-input" id="st_logo" type="file" name="logo" accept="image/*" data-preview="#st_logo_prev"><img class="ad-preview" id="st_logo_prev" alt="Logo preview" {% if settings.logo %}src="{{ settings.logo.url }}"{% else %}hidden{% endif %}></div>
+  </div></div>
+
+  <div class="ad-card mb-4"><h2 class="h5">Contact and location</h2><div class="row g-3">
+    <div class="col-md-6 ag-field"><label class="ag-label" for="st_phone">Phone</label><input class="ag-input" id="st_phone" type="tel" name="phone" value="{{ settings.phone }}"></div>
+    <div class="col-md-6 ag-field"><label class="ag-label" for="st_email">Email</label><input class="ag-input" id="st_email" type="email" name="email" value="{{ settings.email }}"></div>
+    <div class="col-md-6 ag-field"><label class="ag-label" for="st_wa">WhatsApp number</label><input class="ag-input" id="st_wa" name="whatsapp" value="{{ settings.whatsapp }}" inputmode="numeric"><p class="ag-help">Digits only with country code, no plus sign.</p></div>
+    <div class="col-md-6 ag-field"><label class="ag-label" for="st_map">Google Maps embed link</label><input class="ag-input" id="st_map" type="url" name="map_embed_url" value="{{ settings.map_embed_url }}"></div>
+    <div class="col-12 ag-field"><label class="ag-label" for="st_addr">Address</label><textarea class="ag-textarea" id="st_addr" name="address" rows="2">{{ settings.address }}</textarea></div>
+  </div></div>
+
+  <div class="ad-card mb-4"><h2 class="h5">Opening hours</h2>
+    <div id="hoursRows">
+      {% for h in settings.opening_hours %}<div class="row g-2 mb-2" data-row><div class="col-sm-5"><label class="visually-hidden" for="hd{{ forloop.counter }}">Days</label><input class="ag-input" id="hd{{ forloop.counter }}" name="hours_days" value="{{ h.days }}" placeholder="Monday to Friday"></div><div class="col-sm-5"><label class="visually-hidden" for="ht{{ forloop.counter }}">Hours</label><input class="ag-input" id="ht{{ forloop.counter }}" name="hours_text" value="{{ h.hours }}" placeholder="8:00 AM - 5:00 PM"></div><div class="col-sm-2"><button type="button" class="ag-btn ag-btn--outline ag-btn--sm" data-remove-row>Remove</button></div></div>{% endfor %}
+    </div>
+    <template id="hoursTpl"><div class="row g-2 mb-2" data-row><div class="col-sm-5"><label class="visually-hidden">Days</label><input class="ag-input" name="hours_days" placeholder="Saturday"></div><div class="col-sm-5"><label class="visually-hidden">Hours</label><input class="ag-input" name="hours_text" placeholder="9:00 AM - 1:00 PM"></div><div class="col-sm-2"><button type="button" class="ag-btn ag-btn--outline ag-btn--sm" data-remove-row>Remove</button></div></div></template>
+    <button type="button" class="ag-btn ag-btn--navy ag-btn--sm" data-add-row="#hoursTpl" data-target="#hoursRows"><i class="bi bi-plus-lg" aria-hidden="true"></i>Add hours</button>
+  </div>
+
+  <div class="ad-card mb-4"><h2 class="h5">Social media</h2><div class="row g-3">
+    <div class="col-md-4 ag-field"><label class="ag-label" for="st_fb">Facebook URL</label><input class="ag-input" id="st_fb" type="url" name="facebook_url" value="{{ settings.facebook_url }}"></div>
+    <div class="col-md-4 ag-field"><label class="ag-label" for="st_ig">Instagram URL</label><input class="ag-input" id="st_ig" type="url" name="instagram_url" value="{{ settings.instagram_url }}"></div>
+    <div class="col-md-4 ag-field"><label class="ag-label" for="st_x">X (Twitter) URL</label><input class="ag-input" id="st_x" type="url" name="x_url" value="{{ settings.x_url }}"></div>
+  </div></div>
+
+  <div class="ad-card mb-4"><h2 class="h5">Website configuration</h2>
+    <label class="ag-switch"><input type="checkbox" name="booking_enabled" value="1" {% if settings.booking_enabled %}checked{% endif %}><span class="track"></span><span>Accept online appointment requests</span></label></div>
+  <button class="ag-btn ag-btn--primary" type="submit">Save settings</button>
+</form>
+{% endblock %}

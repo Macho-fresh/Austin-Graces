@@ -1,0 +1,12 @@
+{% comment %}Usage: include with testimonial=t. Fields: name (blank = anonymous), rating (1-5), comment, created_at, is_verified.{% endcomment %}
+<figure class="ag-card ag-quote">
+  <div class="ag-card__body">
+    <p class="ag-stars" role="img" aria-label="{{ testimonial.rating }} out of 5 stars">{% for i in "12345" %}{% if forloop.counter <= testimonial.rating %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star"></i>{% endif %}{% endfor %}</p>
+    <blockquote>{{ testimonial.comment }}</blockquote>
+    <figcaption>
+      <strong>{{ testimonial.name|default:"Anonymous patient" }}</strong>
+      <span class="ag-muted">{{ testimonial.created_at|date:"j F Y" }}</span>
+      {% if testimonial.is_verified %}<span class="ag-badge ag-badge--completed">Verified review</span>{% else %}<span class="ag-badge">Sample content</span>{% endif %}
+    </figcaption>
+  </div>
+</figure>

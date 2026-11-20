@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Our Dental Services | {{ site.clinic_name|default:"Austin Graces Dental Clinic" }}{% endblock %}
+{% block meta_description %}General dentistry, cleaning, whitening, braces, root canal, extractions, implants, fillings, dentures and children's dentistry in New Haven, Enugu.{% endblock %}
+{% block content %}
+{% include "partials/page_banner.html" with title="Our services" intro="Complete dental care for you and your family." %}
+<section class="ag-section">
+  <div class="container">
+    <div class="row g-4">
+      {% for service in services %}
+        <div class="col-md-6 col-lg-4">{% include "partials/service_card.html" %}</div>
+      {% empty %}
+        <div class="col-12"><p class="ag-alert ag-alert--info">No services are published yet.</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% include "partials/cta_band.html" %}
+{% endblock %}

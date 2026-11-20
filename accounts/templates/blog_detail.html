@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ post.title }} | {{ site.clinic_name|default:"Austin Graces Dental Clinic" }}{% endblock %}
+{% block meta_description %}{{ post.excerpt|truncatechars:155 }}{% endblock %}
+{% block content %}
+<article>
+<header class="ag-banner"><div class="container ag-narrow">
+  <ol class="ag-breadcrumb"><li><a href="{% url 'home' %}">Home</a></li><li><a href="{% url 'blog' %}">Blog</a></li></ol>
+  <p class="ag-meta"><span class="ag-badge">{{ post.category }}</span> <time datetime="{{ post.published_at|date:'Y-m-d' }}">{{ post.published_at|date:"j F Y" }}</time></p>
+  <h1>{{ post.title }}</h1>
+</div></header>
+<section class="ag-section"><div class="container ag-narrow">
+  {% if post.image %}<img class="ag-photo mb-4" src="{{ post.image.url }}" alt="" width="900" height="520">{% endif %}
+  <div class="ag-prose">{{ post.content|safe }}</div>
+  <div class="ag-share"><span>Share this article</span>
+    <a href="https://wa.me/?text={{ post.title|urlencode }}%20{{ request.build_absolute_uri|urlencode }}" aria-label="Share on WhatsApp" rel="noopener"><i class="bi bi-whatsapp"></i></a>
+    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri|urlencode }}" aria-label="Share on Facebook" rel="noopener"><i class="bi bi-facebook"></i></a>
+    <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri|urlencode }}&text={{ post.title|urlencode }}" aria-label="Share on X" rel="noopener"><i class="bi bi-twitter-x"></i></a>
+    <button type="button" data-copy-link aria-label="Copy link"><i class="bi bi-link-45deg"></i></button>
+  </div>
+</div></section>
+</article>
+{% if related_posts %}<section class="ag-section ag-section--mist"><div class="container">
+  <h2>Related articles</h2><div class="row g-4">{% for post in related_posts %}<div class="col-md-6 col-lg-4">{% include "partials/post_card.html" %}</div>{% endfor %}</div>
+</div></section>{% endif %}
+{% include "partials/cta_band.html" %}
+{% endblock %}

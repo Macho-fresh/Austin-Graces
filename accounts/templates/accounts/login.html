@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Patient Login | {{ site.clinic_name|default:"Austin Graces Dental Clinic" }}{% endblock %}
+{% block meta_description %}Log in to view and manage your dental appointments.{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/auth.css' %}">{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<div class="ag-auth">
+  <div class="ag-auth__aside"><h1>Welcome back</h1><ul><li><i class="bi bi-check2-circle"></i>See upcoming appointments</li><li><i class="bi bi-check2-circle"></i>Review past visits</li><li><i class="bi bi-check2-circle"></i>Book or cancel in a few taps</li></ul></div>
+  <div class="ag-auth__main"><div class="ag-auth__card">
+    <h2>Patient login</h2>
+    {% if form.non_field_errors %}<div class="ag-alert ag-alert--error" role="alert">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>{% endif %}
+    <form method="post" action="{% url 'login' %}" novalidate data-validate>
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next|default:'' }}">
+      {% include "partials/form_field.html" with field=form.username label="Email or username" type="text" autocomplete="username" required=True error_text="Enter your email or username." %}
+      {% include "partials/form_field.html" with field=form.password label="Password" type="password" autocomplete="current-password" required=True error_text="Enter your password." %}
+      <div class="ag-auth__row"><span></span><a href="{% url 'password_reset' %}">Forgot password?</a></div>
+      <button class="ag-btn ag-btn--primary ag-btn--block" type="submit">Log in</button>
+    </form>
+    <p class="ag-auth__foot">New patient? <a href="{% url 'register' %}">Create an account</a></p>
+  </div></div>
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/validation.js' %}"></script>{% endblock %}

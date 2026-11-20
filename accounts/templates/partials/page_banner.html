@@ -1,0 +1,8 @@
+{% comment %}Usage: include with title=, intro=, crumb= (current page label).{% endcomment %}
+<section class="ag-banner">
+  <div class="container">
+    <ol class="ag-breadcrumb"><li><a href="{% url 'home' %}">Home</a></li><li aria-current="page">{{ crumb|default:title }}</li></ol>
+    <h1>{{ title }}</h1>
+    {% if intro %}<p class="ag-lead">{{ intro }}</p>{% endif %}
+  </div>
+</section>

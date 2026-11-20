@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Dental Health Blog | {{ site.clinic_name|default:"Austin Graces Dental Clinic" }}{% endblock %}
+{% block meta_description %}Dental health advice and clinic news from {{ site.clinic_name|default:"Austin Graces Dental Clinic" }}.{% endblock %}
+{% block content %}
+{% include "partials/page_banner.html" with title="Dental health blog" intro="Practical advice for healthier teeth and gums." crumb="Blog" %}
+<section class="ag-section"><div class="container">
+  {% if featured_post and page_obj.number == 1 %}
+  <article class="ag-featured">
+    <img src="{% if featured_post.image %}{{ featured_post.image.url }}{% else %}{% static 'images/clinic/placeholder.svg' %}{% endif %}" alt="" loading="lazy">
+    <div><span class="ag-badge">{{ featured_post.category }}</span>
+      <h2><a href="{% url 'blog_detail' featured_post.slug %}">{{ featured_post.title }}</a></h2>
+      <p>{{ featured_post.excerpt|truncatewords:35 }}</p>
+      <a class="ag-btn ag-btn--navy ag-btn--sm" href="{% url 'blog_detail' featured_post.slug %}">Read article</a></div>
+  </article>{% endif %}
+
+  <div class="row g-5 mt-1">
+    <div class="col-lg-8"><div class="row g-4">
+      {% for post in page_obj %}<div class="col-md-6">{% include "partials/post_card.html" %}</div>
+      {% empty %}<div class="col-12"><p class="ag-alert ag-alert--info">No articles found.</p></div>{% endfor %}
+    </div>
+    {% include "partials/pagination.html" with query=query_string %}</div>
+    <aside class="col-lg-4"><div class="ag-panel ag-sticky">
+      <form method="get" action="{% url 'blog' %}" role="search"><label class="ag-label" for="blogSearch">Search articles</label>
+        <div class="ag-searchrow"><input class="ag-input" id="blogSearch" type="search" name="q" value="{{ request.GET.q }}"><button class="ag-btn ag-btn--primary ag-btn--sm" type="submit">Search</button></div></form>
+      <h2 class="h5 mt-4">Categories</h2>
+      <ul class="ag-plain">{% for c in categories %}<li><a href="{% url 'blog' %}?category={{ c.slug }}" {% if request.GET.category == c.slug %}aria-current="true"{% endif %}>{{ c.name }}</a></li>{% empty %}<li class="ag-muted">No categories yet</li>{% endfor %}</ul>
+    </div></aside>
+  </div>
+</div></section>
+{% endblock %}

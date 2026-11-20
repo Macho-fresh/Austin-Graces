@@ -1,0 +1,13 @@
+{% comment %}Patient portal navigation. URL names: dashboard, my_appointments, profile, appointment, logout (POST).{% endcomment %}
+{% with current=request.resolver_match.url_name %}
+<nav class="ag-sidebar" aria-label="Patient account">
+  <div class="ag-sidebar__user"><strong>{{ user.get_full_name|default:user.username }}</strong><span>{{ user.email }}</span></div>
+  <ul>
+    <li><a href="{% url 'dashboard' %}" {% if current == 'dashboard' %}aria-current="page"{% endif %}><i class="bi bi-grid" aria-hidden="true"></i>Overview</a></li>
+    <li><a href="{% url 'my_appointments' %}" {% if current == 'my_appointments' %}aria-current="page"{% endif %}><i class="bi bi-calendar-check" aria-hidden="true"></i>My appointments</a></li>
+    <li><a href="{% url 'profile' %}" {% if current == 'profile' %}aria-current="page"{% endif %}><i class="bi bi-person" aria-hidden="true"></i>Profile</a></li>
+    <li><a href="{% url 'appointment' %}"><i class="bi bi-plus-circle" aria-hidden="true"></i>Book new</a></li>
+    <li><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit"><i class="bi bi-box-arrow-right" aria-hidden="true"></i>Log out</button></form></li>
+  </ul>
+</nav>
+{% endwith %}

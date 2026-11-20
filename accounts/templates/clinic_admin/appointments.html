@@ -1,0 +1,63 @@
+{% extends "clinic_admin/base_admin.html" %}
+{% comment %}
+Context: page_obj (appointments), services, query_string.
+Appointment: pk, patient_name, email, phone, service, dentist, date, time, status, get_status_display, message, created_at.
+POST URLs (pk): admin_appointment_approve, admin_appointment_reschedule (fields date, time), admin_appointment_cancel, admin_appointment_complete.
+Filters are GET: q, date_from, date_to, service, status.
+{% endcomment %}
+{% block title %}Appointments{% endblock %}
+{% block page_title %}Appointments{% endblock %}
+{% block content %}
+<div class="ad-head"><div><h1>Appointments</h1><p>Approve, reschedule, complete or cancel patient requests.</p></div></div>
+<section class="ad-card ad-card--flush">
+  <form class="ad-toolbar" method="get" action="{% url 'admin_appointments' %}" role="search">
+    <div class="ag-field"><label class="ag-label" for="f_q">Search</label><input class="ag-input" id="f_q" type="search" name="q" value="{{ request.GET.q }}" placeholder="Name, email or phone"></div>
+    <div class="ag-field"><label class="ag-label" for="f_from">From</label><input class="ag-input" id="f_from" type="date" name="date_from" value="{{ request.GET.date_from }}"></div>
+    <div class="ag-field"><label class="ag-label" for="f_to">To</label><input class="ag-input" id="f_to" type="date" name="date_to" value="{{ request.GET.date_to }}"></div>
+    <div class="ag-field"><label class="ag-label" for="f_service">Service</label><select class="ag-select" id="f_service" name="service"><option value="">All services</option>{% for s in services %}<option value="{{ s.pk }}" {% if request.GET.service == s.pk|stringformat:"s" %}selected{% endif %}>{{ s.name }}</option>{% endfor %}</select></div>
+    <div class="ag-field"><label class="ag-label" for="f_status">Status</label><select class="ag-select" id="f_status" name="status"><option value="">All statuses</option>{% for v,l in status_choices %}<option value="{{ v }}" {% if request.GET.status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+    <button class="ag-btn ag-btn--navy ag-btn--sm" type="submit">Filter</button>
+    <a class="ag-btn ag-btn--outline ag-btn--sm" href="{% url 'admin_appointments' %}">Clear</a>
+  </form>
+  <div class="ag-tablewrap"><table class="ag-table ag-table-stack">
+    <thead><tr><th scope="col">Patient</th><th scope="col">Service</th><th scope="col">Dentist</th><th scope="col">Date and time</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+    <tbody>
+    {% for a in page_obj %}
+      <tr>
+        <td data-label="Patient"><strong>{{ a.patient_name }}</strong><br><small class="ag-muted">{{ a.phone }}</small></td>
+        <td data-label="Service">{{ a.service }}</td>
+        <td data-label="Dentist">{{ a.dentist }}</td>
+        <td data-label="When">{{ a.date|date:"D j M Y" }}, {{ a.time|time:"g:i A" }}</td>
+        <td data-label="Status"><span class="ag-badge ag-badge--{{ a.status }}">{{ a.get_status_display }}</span></td>
+        <td data-label="Actions"><div class="ad-actions">
+          <button type="button" class="ag-btn ag-btn--outline ad-btn-icon" data-detail-modal="#apptDetail" data-d-patient="{{ a.patient_name }}" data-d-email="{{ a.email }}" data-d-phone="{{ a.phone }}" data-d-service="{{ a.service }}" data-d-dentist="{{ a.dentist }}" data-d-when="{{ a.date|date:'D j M Y' }}, {{ a.time|time:'g:i A' }}" data-d-status="{{ a.get_status_display }}" data-d-message="{{ a.message }}" aria-label="View appointment of {{ a.patient_name }}"><i class="bi bi-eye" aria-hidden="true"></i></button>
+          {% if a.status == 'pending' %}<button type="button" class="ag-btn ag-btn--primary ad-btn-icon" data-post-url="{% url 'admin_appointment_approve' a.pk %}">Approve</button>{% endif %}
+          {% if a.status == 'confirmed' %}<button type="button" class="ag-btn ag-btn--navy ad-btn-icon" data-post-url="{% url 'admin_appointment_complete' a.pk %}">Complete</button>{% endif %}
+          {% if a.status == 'pending' or a.status == 'confirmed' %}
+            <button type="button" class="ag-btn ag-btn--outline ad-btn-icon" data-form-modal="#rescheduleModal" data-action-url="{% url 'admin_appointment_reschedule' a.pk %}" data-f-date="{{ a.date|date:'Y-m-d' }}" data-f-time="{{ a.time|time:'H:i' }}">Reschedule</button>
+            <button type="button" class="ag-btn ag-btn--outline ad-btn-icon" data-confirm-url="{% url 'admin_appointment_cancel' a.pk %}" data-confirm-title="Cancel appointment?" data-confirm-text="Cancel {{ a.patient_name }}'s {{ a.service }} appointment on {{ a.date|date:'j M Y' }}? The patient will see it as cancelled." data-confirm-label="Cancel appointment">Cancel</button>
+          {% endif %}
+        </div></td>
+      </tr>
+    {% empty %}<tr><td colspan="6"><div class="ag-empty"><i class="bi bi-calendar-x" aria-hidden="true"></i><p>No appointments match these filters.</p></div></td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+</section>
+{% include "partials/pagination.html" with query=query_string %}
+
+<div class="modal fade" id="apptDetail" tabindex="-1" aria-labelledby="apptDetailTitle" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content ag-modal">
+  <div class="modal-header"><h2 class="modal-title h4" id="apptDetailTitle">Appointment details</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+  <div class="modal-body"><dl class="ad-detail"><dt>Patient</dt><dd data-fill="patient"></dd><dt>Email</dt><dd data-fill="email"></dd><dt>Phone</dt><dd data-fill="phone"></dd><dt>Service</dt><dd data-fill="service"></dd><dt>Dentist</dt><dd data-fill="dentist"></dd><dt>When</dt><dd data-fill="when"></dd><dt>Status</dt><dd data-fill="status"></dd><dt>Message</dt><dd data-fill="message"></dd></dl></div>
+</div></div></div>
+
+<div class="modal fade" id="rescheduleModal" tabindex="-1" aria-labelledby="reschedTitle" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content ag-modal">
+  <form method="post" action="">{% csrf_token %}
+    <div class="modal-header"><h2 class="modal-title h4" id="reschedTitle">Reschedule appointment</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body">
+      <div class="ag-field"><label class="ag-label" for="r_date">New date</label><input class="ag-input" id="r_date" type="date" name="date" required></div>
+      <div class="ag-field"><label class="ag-label" for="r_time">New time</label><input class="ag-input" id="r_time" type="time" name="time" required><p class="ag-help">Your view should check the dentist's schedule before saving.</p></div>
+    </div>
+    <div class="modal-footer"><button type="button" class="ag-btn ag-btn--outline ag-btn--sm" data-bs-dismiss="modal">Close</button><button type="submit" class="ag-btn ag-btn--primary ag-btn--sm">Save new time</button></div>
+  </form>
+</div></div></div>
+{% endblock %}

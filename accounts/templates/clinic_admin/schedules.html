@@ -1,0 +1,43 @@
+{% extends "clinic_admin/base_admin.html" %}
+{% comment %}
+Context: dentists, selected_dentist, schedule_days [{index, name, is_working, open_time, close_time}], slot_minutes,
+week_days [{label, date, is_working, entries:[{time, patient, service, free(bool)}]}], week_label.
+POST URL: admin_schedule_save (hidden dentist; fields work_<index>, open_<index>, close_<index>, slot_minutes). Slot availability itself is computed by Django.
+{% endcomment %}
+{% block title %}Schedules{% endblock %}
+{% block page_title %}Schedules{% endblock %}
+{% block content %}
+<div class="ad-head"><div><h1>Schedules</h1><p>Working days, hours and appointment slots per dentist.</p></div>
+  <form method="get" action="{% url 'admin_schedules' %}" class="ag-field mb-0"><label class="ag-label" for="dentistPick">Dentist</label>
+    <select class="ag-select" id="dentistPick" name="dentist" data-autosubmit>{% for d in dentists %}<option value="{{ d.pk }}" {% if selected_dentist.pk == d.pk %}selected{% endif %}>{{ d.full_name }}</option>{% empty %}<option value="">No dentists yet</option>{% endfor %}</select></form></div>
+
+{% if selected_dentist %}
+<div class="ad-grid ad-grid--sched">
+  <section class="ad-card">
+    <h2 class="h5">Weekly hours for {{ selected_dentist.full_name }}</h2>
+    <form method="post" action="{% url 'admin_schedule_save' %}">{% csrf_token %}
+      <input type="hidden" name="dentist" value="{{ selected_dentist.pk }}">
+      <div class="ad-days">
+        {% for day in schedule_days %}
+        <div class="ad-day">
+          <label class="ag-switch"><input type="checkbox" name="work_{{ day.index }}" value="1" data-day-toggle {% if day.is_working %}checked{% endif %}><span class="track"></span><span>{{ day.name }}</span></label>
+          <div><label class="visually-hidden" for="open_{{ day.index }}">{{ day.name }} opening time</label><input class="ag-input" id="open_{{ day.index }}" type="time" name="open_{{ day.index }}" value="{{ day.open_time|time:'H:i' }}"></div>
+          <div><label class="visually-hidden" for="close_{{ day.index }}">{{ day.name }} closing time</label><input class="ag-input" id="close_{{ day.index }}" type="time" name="close_{{ day.index }}" value="{{ day.close_time|time:'H:i' }}"></div>
+        </div>{% endfor %}
+      </div>
+      <div class="ag-field mt-3"><label class="ag-label" for="slotMin">Appointment length</label><select class="ag-select" id="slotMin" name="slot_minutes"><option value="15" {% if slot_minutes == 15 %}selected{% endif %}>15 minutes</option><option value="30" {% if slot_minutes == 30 %}selected{% endif %}>30 minutes</option><option value="45" {% if slot_minutes == 45 %}selected{% endif %}>45 minutes</option><option value="60" {% if slot_minutes == 60 %}selected{% endif %}>60 minutes</option></select></div>
+      <button class="ag-btn ag-btn--primary" type="submit">Save schedule</button>
+    </form>
+  </section>
+  <section class="ad-card" aria-labelledby="weekTitle">
+    <h2 class="h5" id="weekTitle">This week{% if week_label %}: {{ week_label }}{% endif %}</h2>
+    <div class="ad-week">
+      {% for day in week_days %}
+      <div class="ad-weekday {% if not day.is_working %}ad-weekday--off{% endif %}"><h3>{{ day.label }}<br><small class="ag-muted">{{ day.date|date:"j M" }}</small></h3>
+        {% if day.is_working %}{% for e in day.entries %}<div class="ad-slot {% if e.free %}ad-slot--free{% endif %}"><strong>{{ e.time|time:"g:i A" }}</strong><br>{% if e.free %}Available{% else %}{{ e.patient }}<br><small>{{ e.service }}</small>{% endif %}</div>{% empty %}<p class="ag-help">No slots</p>{% endfor %}{% else %}<p class="ag-help">Not working</p>{% endif %}
+      </div>{% endfor %}
+    </div>
+  </section>
+</div>
+{% else %}<div class="ad-card ag-empty"><i class="bi bi-clock" aria-hidden="true"></i><p>Add a dentist first to manage schedules.</p></div>{% endif %}
+{% endblock %}

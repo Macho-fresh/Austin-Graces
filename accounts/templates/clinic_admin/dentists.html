@@ -1,0 +1,41 @@
+{% extends "clinic_admin/base_admin.html" %}
+{% load static %}
+{% comment %}
+Context: dentists (full_name, title, specialization, qualifications, experience_years, bio, photo, pk).
+POST URLs: admin_dentist_add, admin_dentist_edit(pk), admin_dentist_delete(pk). Form is multipart (photo).
+{% endcomment %}
+{% block title %}Dentists{% endblock %}
+{% block page_title %}Dentists{% endblock %}
+{% block content %}
+<div class="ad-head"><div><h1>Dentists</h1><p>Profiles shown on the public website.</p></div>
+  <button type="button" class="ag-btn ag-btn--primary ag-btn--sm" data-form-modal="#dentistModal" data-action-url="{% url 'admin_dentist_add' %}" data-title="Add dentist"><i class="bi bi-plus-lg" aria-hidden="true"></i>Add dentist</button></div>
+<div class="ad-cards">
+  {% for d in dentists %}
+  <article class="ad-card ad-person">
+    <img src="{% if d.photo %}{{ d.photo.url }}{% else %}{% static 'images/dentists/placeholder.svg' %}{% endif %}" alt="">
+    <h3>{{ d.full_name }}</h3><p class="mb-0 ag-muted">{{ d.title }}</p>
+    {% if d.specialization %}<p><span class="ag-badge">{{ d.specialization }}</span></p>{% endif %}
+    <div class="ad-actions mt-auto">
+      <button type="button" class="ag-btn ag-btn--outline ad-btn-icon" data-form-modal="#dentistModal" data-title="Edit dentist" data-action-url="{% url 'admin_dentist_edit' d.pk %}" data-image-url="{% if d.photo %}{{ d.photo.url }}{% endif %}" data-f-full-name="{{ d.full_name }}" data-f-title="{{ d.title }}" data-f-specialization="{{ d.specialization }}" data-f-qualifications="{{ d.qualifications }}" data-f-experience-years="{{ d.experience_years|default:'' }}" data-f-bio="{{ d.bio }}">Edit</button>
+      <button type="button" class="ag-btn ag-btn--outline ad-btn-icon" data-confirm-url="{% url 'admin_dentist_delete' d.pk %}" data-confirm-title="Delete dentist?" data-confirm-text="Delete {{ d.full_name }}? Their profile will be removed from the website." data-confirm-label="Delete">Delete</button>
+    </div>
+  </article>
+  {% empty %}<div class="ad-card ag-empty ad-span-all"><i class="bi bi-person-badge" aria-hidden="true"></i><p>No dentists yet. Add the first profile.</p></div>{% endfor %}
+</div>
+
+<div class="modal fade" id="dentistModal" tabindex="-1" aria-labelledby="dentistTitle" aria-hidden="true"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content ag-modal">
+  <form method="post" action="" enctype="multipart/form-data">{% csrf_token %}
+    <div class="modal-header"><h2 class="modal-title h4" id="dentistTitle" data-modal-title>Add dentist</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body"><div class="row g-3">
+      <div class="col-md-6 ag-field"><label class="ag-label" for="dn_name">Full name <span class="ag-req" aria-hidden="true">*</span></label><input class="ag-input" id="dn_name" name="full_name" required></div>
+      <div class="col-md-6 ag-field"><label class="ag-label" for="dn_title">Professional title <span class="ag-req" aria-hidden="true">*</span></label><input class="ag-input" id="dn_title" name="title" required></div>
+      <div class="col-md-6 ag-field"><label class="ag-label" for="dn_spec">Specialization</label><input class="ag-input" id="dn_spec" name="specialization"></div>
+      <div class="col-md-6 ag-field"><label class="ag-label" for="dn_exp">Years of experience</label><input class="ag-input" id="dn_exp" type="number" min="0" name="experience_years"></div>
+      <div class="col-12 ag-field"><label class="ag-label" for="dn_qual">Qualifications</label><textarea class="ag-textarea" id="dn_qual" name="qualifications" rows="2"></textarea><p class="ag-help">One per line. Only enter qualifications you can verify.</p></div>
+      <div class="col-12 ag-field"><label class="ag-label" for="dn_bio">Biography</label><textarea class="ag-textarea" id="dn_bio" name="bio" rows="4"></textarea></div>
+      <div class="col-12 ag-field"><label class="ag-label" for="dn_photo">Photograph</label><input class="ag-input" id="dn_photo" type="file" name="photo" accept="image/*" data-preview="#dn_preview"><img class="ad-preview" id="dn_preview" data-current-image alt="Photo preview" hidden></div>
+    </div></div>
+    <div class="modal-footer"><button type="button" class="ag-btn ag-btn--outline ag-btn--sm" data-bs-dismiss="modal">Cancel</button><button type="submit" class="ag-btn ag-btn--primary ag-btn--sm">Save dentist</button></div>
+  </form>
+</div></div></div>
+{% endblock %}

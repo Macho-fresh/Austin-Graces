@@ -1,0 +1,14 @@
+{% comment %}
+  Renders Django's messages framework. js/main.js turns each item into an auto-dismissing toast.
+  message.tags: success | error | warning | info (map MESSAGE_TAGS 'error' as is).
+{% endcomment %}
+{% if messages %}
+<ul class="ag-flash" hidden>
+  {% for message in messages %}
+    <li data-type="{{ message.tags|default:'info' }}">{{ message }}</li>
+  {% endfor %}
+</ul>
+<noscript>
+  {% for message in messages %}<p class="ag-alert ag-alert--{{ message.tags|default:'info' }}">{{ message }}</p>{% endfor %}
+</noscript>
+{% endif %}

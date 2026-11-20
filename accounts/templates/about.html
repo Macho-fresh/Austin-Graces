@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}About Us | {{ site.clinic_name|default:"Austin Graces Dental Clinic" }}{% endblock %}
+{% block meta_description %}Learn about {{ site.clinic_name|default:"Austin Graces Dental Clinic" }}: our story, mission, values and facilities in New Haven, Enugu.{% endblock %}
+{% block content %}
+{% include "partials/page_banner.html" with title="About us" intro="Who we are and how we care for our patients." %}
+
+<section class="ag-section">
+  <div class="container"><div class="row g-5">
+    <div class="col-lg-6"><h2>Our clinic</h2><p>{{ about.introduction|default:"[Editable placeholder] Introduce the clinic here." }}</p></div>
+    <div class="col-lg-6"><h2>Our story</h2><p>{{ about.history|default:"[Editable placeholder] Add the clinic's history and background here. Only include facts you can confirm." }}</p></div>
+  </div></div>
+</section>
+
+<section class="ag-section ag-section--mist">
+  <div class="container"><div class="row g-4">
+    <div class="col-md-6"><div class="ag-panel"><h2>Mission</h2><p>{{ about.mission|default:"[Editable placeholder] Our mission statement." }}</p></div></div>
+    <div class="col-md-6"><div class="ag-panel"><h2>Vision</h2><p>{{ about.vision|default:"[Editable placeholder] Our vision statement." }}</p></div></div>
+  </div></div>
+</section>
+
+<section class="ag-section">
+  <div class="container">
+    <div class="ag-section__head"><h2>Core values</h2></div>
+    <div class="row g-4">
+      {% for value in core_values %}
+        <div class="col-md-6 col-lg-3"><h3>{{ value.title }}</h3><p>{{ value.text }}</p></div>
+      {% empty %}
+        <div class="col-md-6 col-lg-3"><h3>Care</h3><p>Every patient is treated with respect.</p></div>
+        <div class="col-md-6 col-lg-3"><h3>Honesty</h3><p>Clear advice and clear costs.</p></div>
+        <div class="col-md-6 col-lg-3"><h3>Hygiene</h3><p>A clean, safe clinic.</p></div>
+        <div class="col-md-6 col-lg-3"><h3>Learning</h3><p>Keeping our skills current.</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="ag-section ag-section--mist">
+  <div class="container">
+    <div class="ag-section__head"><h2>Why patients choose us</h2></div>
+    <ul class="ag-checks">
+      {% for reason in why_choose %}<li>{{ reason }}</li>{% empty %}
+      <li>Treatment options explained in plain language</li><li>Services for children and adults</li><li>A comfortable, modern clinic</li><li>Simple online appointment requests</li>{% endfor %}
+    </ul>
+  </div>
+</section>
+
+<section class="ag-section">
+  <div class="container">
+    <div class="ag-section__head"><h2>Facilities and equipment</h2></div>
+    <div class="row g-4">
+      {% for item in facilities %}
+        <div class="col-md-6 col-lg-4"><article class="ag-card"><div class="ag-card__body"><h3>{{ item.name }}</h3><p>{{ item.description }}</p></div></article></div>
+      {% empty %}
+        <div class="col-12"><p class="ag-alert ag-alert--info">[Editable placeholder] List your treatment rooms and equipment here.</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="ag-section ag-section--mist">
+  <div class="container">
+    <div class="ag-section__head"><h2>Our dental team</h2></div>
+    <div class="row g-4">
+      {% for dentist in dentists %}<div class="col-md-6 col-lg-4">{% include "partials/dentist_card.html" %}</div>
+      {% empty %}<div class="col-12"><p class="ag-alert ag-alert--info">Team profiles will appear here.</p></div>{% endfor %}
+    </div>
+  </div>
+</section>
+{% include "partials/cta_band.html" %}
+{% endblock %}

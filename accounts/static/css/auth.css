@@ -1,0 +1,46 @@
+/* Login/register and patient portal */
+.ag-auth { min-height: calc(100vh - var(--ag-header-h)); display: grid; grid-template-columns: 1fr 1fr; }
+.ag-auth__aside { background: var(--ag-navy); color: #DCE7F0; padding: clamp(2rem, 6vw, 5rem); display: flex; flex-direction: column; justify-content: center; }
+.ag-auth__aside h1 { color: #fff; font-size: clamp(1.9rem, 3.5vw, 2.8rem); max-width: 14ch; }
+.ag-auth__aside ul { list-style: none; padding: 0; margin: 1.5rem 0 0; display: grid; gap: .8rem; }
+.ag-auth__aside li { display: flex; gap: .7rem; } .ag-auth__aside i { color: var(--ag-teal); }
+.ag-auth__main { padding: clamp(2rem, 6vw, 4rem) 1.25rem; display: flex; align-items: center; justify-content: center; background: #fff; }
+.ag-auth__card { width: 100%; max-width: 440px; }
+.ag-auth__card h2 { font-size: 1.8rem; }
+.ag-auth__foot { margin-top: 1.5rem; color: var(--ag-muted); }
+.ag-auth__row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.ag-check { display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; }
+.ag-check input { width: 20px; height: 20px; accent-color: var(--ag-teal); }
+
+.ag-portal { display: grid; grid-template-columns: 260px 1fr; gap: 2rem; padding: 2.5rem 0 4rem; }
+.ag-sidebar { align-self: start; position: sticky; top: calc(var(--ag-header-h) + 1rem); background: #fff; border: 1px solid var(--ag-line); border-radius: var(--ag-radius); padding: 1rem; }
+.ag-sidebar__user { padding: .5rem .75rem 1rem; border-bottom: 1px solid var(--ag-line); margin-bottom: .75rem; }
+.ag-sidebar__user strong { display: block; color: var(--ag-navy); } .ag-sidebar__user span { font-size: .93rem; color: var(--ag-muted); word-break: break-all; }
+.ag-sidebar ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .2rem; }
+.ag-sidebar a, .ag-sidebar button { display: flex; align-items: center; gap: .7rem; width: 100%; min-height: 48px; padding: .6rem .8rem; border: 0; background: none; border-radius: var(--ag-radius-sm); font: inherit; color: var(--ag-ink); text-decoration: none; cursor: pointer; text-align: left; }
+.ag-sidebar a:hover, .ag-sidebar button:hover { background: var(--ag-mist); }
+.ag-sidebar a[aria-current="page"] { background: var(--ag-navy); color: #fff; }
+.ag-portal__head { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.ag-portal__head h1 { font-size: clamp(1.7rem, 3vw, 2.2rem); margin: 0; }
+.ag-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+.ag-stat { background: var(--ag-mist); border-radius: var(--ag-radius); padding: 1.25rem; }
+.ag-stat strong { display: block; font-size: 2rem; line-height: 1.1; color: var(--ag-navy); } .ag-stat span { color: var(--ag-muted); }
+.ag-next { display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; border-left: 5px solid var(--ag-teal); }
+.ag-next__date { text-align: center; min-width: 70px; } .ag-next__date strong { display: block; font-size: 2rem; color: var(--ag-navy); line-height: 1; }
+.ag-tabs { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.ag-tabs a { min-height: 44px; display: inline-flex; align-items: center; padding: .4rem 1rem; border: 1.5px solid #CBD7E2; border-radius: 999px; color: var(--ag-navy); text-decoration: none; }
+.ag-tabs a[aria-current="true"] { background: var(--ag-navy); border-color: var(--ag-navy); color: #fff; }
+
+@media (max-width: 991.98px) {
+  .ag-auth { grid-template-columns: 1fr; } .ag-auth__aside { display: none; }
+  .ag-portal { grid-template-columns: 1fr; gap: 1.25rem; padding-top: 1.5rem; }
+  .ag-sidebar { position: static; } .ag-sidebar ul { grid-auto-flow: column; grid-auto-columns: max-content; overflow-x: auto; padding-bottom: .25rem; }
+  .ag-sidebar__user { display: none; } .ag-sidebar a, .ag-sidebar button { width: auto; white-space: nowrap; }
+}
+@media (max-width: 575.98px) { .ag-stats { grid-template-columns: 1fr; } }
+
+/* Single-column variant for password reset pages */
+.ag-auth--single { grid-template-columns: 1fr; background: var(--ag-mist); }
+.ag-auth__icon { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(25, 167, 161, .12); color: var(--ag-teal-700); font-size: 1.8rem; margin-bottom: 1rem; }
+.ag-auth--single .ag-auth__card { background: #fff; border: 1px solid var(--ag-line); border-radius: var(--ag-radius); padding: clamp(1.5rem, 4vw, 2.25rem); box-shadow: var(--ag-shadow-sm); }
+.ag-form-narrow { max-width: 520px; }

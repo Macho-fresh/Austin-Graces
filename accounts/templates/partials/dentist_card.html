@@ -1,0 +1,18 @@
+{% comment %}Usage: include with dentist=dentist. Fields: full_name, slug, title, specialization, bio, photo.{% endcomment %}
+{% load static %}
+<article class="ag-card ag-dentist">
+  {% if dentist.photo %}
+    <img class="ag-dentist__photo" src="{{ dentist.photo.url }}" alt="Portrait of {{ dentist.full_name }}" loading="lazy">
+  {% else %}
+    <img class="ag-dentist__photo" src="{% static 'images/dentists/placeholder.svg' %}" alt="" loading="lazy">
+  {% endif %}
+  <div class="ag-card__body">
+    <h3>{{ dentist.full_name }}</h3>
+    <p class="ag-dentist__title">{{ dentist.title }}</p>
+    {% if dentist.specialization %}<p class="ag-badge">{{ dentist.specialization }}</p>{% endif %}
+    <p>{{ dentist.bio|truncatewords:25 }}</p>
+    <div class="ag-card__footer">
+      <a class="ag-link" href="{% url 'dentist_detail' dentist.slug %}">View profile<span class="visually-hidden"> of {{ dentist.full_name }}</span></a>
+    </div>
+  </div>
+</article>

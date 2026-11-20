@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ dentist.full_name }} | {{ site.clinic_name|default:"Austin Graces Dental Clinic" }}{% endblock %}
+{% block meta_description %}{{ dentist.full_name }}, {{ dentist.title }} at {{ site.clinic_name|default:"Austin Graces Dental Clinic" }}.{% endblock %}
+{% block content %}
+{% include "partials/page_banner.html" with title=dentist.full_name intro=dentist.title crumb=dentist.full_name %}
+<section class="ag-section"><div class="container"><div class="row g-5">
+  <div class="col-lg-4">
+    {% if dentist.photo %}<img class="ag-photo" src="{{ dentist.photo.url }}" alt="Portrait of {{ dentist.full_name }}" width="480" height="560">{% else %}<img class="ag-photo" src="{% static 'images/dentists/placeholder.svg' %}" alt="">{% endif %}
+    <a class="ag-btn ag-btn--primary ag-btn--block mt-3" href="{% url 'appointment' %}?dentist={{ dentist.slug }}">Book with {{ dentist.full_name }}</a>
+  </div>
+  <div class="col-lg-8">
+    <h2>Biography</h2>{{ dentist.bio|linebreaks }}
+    {% if dentist.experience_years %}<h2 class="mt-5">Experience</h2><p>{{ dentist.experience_years }} years in dental practice.</p>{% endif %}
+    {% if qualifications %}<h2 class="mt-5">Qualifications</h2><ul class="ag-checks">{% for q in qualifications %}<li>{{ q }}</li>{% endfor %}</ul>{% endif %}
+    {% if specializations %}<h2 class="mt-5">Specializations</h2><p>{% for s in specializations %}<span class="ag-badge">{{ s }}</span> {% endfor %}</p>{% endif %}
+  </div>
+</div></div></section>
+{% endblock %}

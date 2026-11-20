@@ -1,0 +1,43 @@
+{% extends "clinic_admin/base_admin.html" %}
+{% comment %}
+Context (doctor_appointments view): dentist, page_obj, scope (upcoming|past|cancelled|all), q, query_string
+POST URL: doctor_appointment_complete(pk)
+{% endcomment %}
+{% block title %}My appointments{% endblock %}
+{% block page_title %}My appointments{% endblock %}
+{% block sidebar %}{% include "partials/doctor_sidebar.html" %}{% endblock %}
+{% block content %}
+<div class="ad-head"><div><h1>My appointments</h1><p>{{ dentist.full_name }}</p></div></div>
+<section class="ad-card ad-card--flush">
+  <nav class="ad-tabs" aria-label="Filter appointments">
+    <a href="?scope=upcoming" {% if scope == 'upcoming' %}aria-current="true"{% endif %}>Upcoming</a>
+    <a href="?scope=past" {% if scope == 'past' %}aria-current="true"{% endif %}>Past</a>
+    <a href="?scope=cancelled" {% if scope == 'cancelled' %}aria-current="true"{% endif %}>Cancelled</a>
+    <a href="?scope=all" {% if scope == 'all' %}aria-current="true"{% endif %}>All</a>
+  </nav>
+  <form class="ad-toolbar" method="get" action="{% url 'doctor_appointments' %}" role="search">
+    <input type="hidden" name="scope" value="{{ scope }}">
+    <div class="ag-field"><label class="ag-label" for="dq">Search</label><input class="ag-input" id="dq" type="search" name="q" value="{{ q }}" placeholder="Patient, phone or service"></div>
+    <button class="ag-btn ag-btn--navy ag-btn--sm" type="submit">Search</button>
+    {% if q %}<a class="ag-btn ag-btn--outline ag-btn--sm" href="?scope={{ scope }}">Clear</a>{% endif %}
+  </form>
+  <div class="ag-tablewrap"><table class="ag-table ag-table-stack">
+    <thead><tr><th scope="col">Date</th><th scope="col">Time</th><th scope="col">Patient</th><th scope="col">Service</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+    <tbody>
+    {% for a in page_obj %}
+      <tr>
+        <td data-label="Date">{{ a.date|date:"D j M Y" }}</td>
+        <td data-label="Time">{{ a.time|time:"g:i A" }}</td>
+        <td data-label="Patient">{{ a.full_name }}<br><a href="tel:{{ a.phone }}">{{ a.phone }}</a></td>
+        <td data-label="Service">{{ a.service }}{% if a.message %}<br><small class="ag-muted">{{ a.message|truncatechars:70 }}</small>{% endif %}</td>
+        <td data-label="Status"><span class="ag-badge ag-badge--{{ a.status }}">{{ a.get_status_display }}</span></td>
+        <td data-label="Actions">{% if a.can_complete %}<button type="button" class="ag-btn ag-btn--navy ad-btn-icon" data-post-url="{% url 'doctor_appointment_complete' a.pk %}">Mark completed</button>{% endif %}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="6"><div class="ag-empty"><i class="bi bi-calendar-x" aria-hidden="true"></i><p>No appointments to show here.</p></div></td></tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</section>
+{% include "partials/pagination.html" with query=query_string %}
+{% endblock %}

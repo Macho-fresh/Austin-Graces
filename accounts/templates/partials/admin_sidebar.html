@@ -1,0 +1,21 @@
+{% load static %}
+{% comment %}URL names: admin_dashboard, admin_appointments, admin_patients, admin_dentists, admin_services, admin_schedules, admin_testimonials, admin_blog, admin_settings, home, logout{% endcomment %}
+{% with c=request.resolver_match.url_name %}
+<aside class="ad-side" id="adminSide" aria-label="Admin navigation">
+  <a class="ag-brand ag-brand--light" href="{% url 'admin_dashboard' %}"><img src="{% static 'images/logo/logo-light.svg' %}" alt="" height="36"><span class="ag-brand__name">{{ site.clinic_name|default:"Austin Graces Dental Clinic" }}</span></a>
+  <nav><ul class="ad-nav">
+    <li><a href="{% url 'admin_dashboard' %}" {% if c == 'admin_dashboard' %}aria-current="page"{% endif %}><i class="bi bi-grid" aria-hidden="true"></i>Overview</a></li>
+    <li class="ad-nav__label">Clinic</li>
+    <li><a href="{% url 'admin_appointments' %}" {% if c == 'admin_appointments' %}aria-current="page"{% endif %}><i class="bi bi-calendar-check" aria-hidden="true"></i>Appointments</a></li>
+    <li><a href="{% url 'admin_patients' %}" {% if c == 'admin_patients' %}aria-current="page"{% endif %}><i class="bi bi-people" aria-hidden="true"></i>Patients</a></li>
+    <li><a href="{% url 'admin_dentists' %}" {% if c == 'admin_dentists' %}aria-current="page"{% endif %}><i class="bi bi-person-badge" aria-hidden="true"></i>Dentists</a></li>
+    <li><a href="{% url 'admin_schedules' %}" {% if c == 'admin_schedules' %}aria-current="page"{% endif %}><i class="bi bi-clock" aria-hidden="true"></i>Schedules</a></li>
+    <li class="ad-nav__label">Website</li>
+    <li><a href="{% url 'admin_services' %}" {% if c == 'admin_services' %}aria-current="page"{% endif %}><i class="bi bi-heart-pulse" aria-hidden="true"></i>Services</a></li>
+    <li><a href="{% url 'admin_testimonials' %}" {% if c == 'admin_testimonials' %}aria-current="page"{% endif %}><i class="bi bi-chat-quote" aria-hidden="true"></i>Testimonials</a></li>
+    <li><a href="{% url 'admin_blog' %}" {% if c == 'admin_blog' %}aria-current="page"{% endif %}><i class="bi bi-journal-text" aria-hidden="true"></i>Blog</a></li>
+    <li><a href="{% url 'admin_settings' %}" {% if c == 'admin_settings' %}aria-current="page"{% endif %}><i class="bi bi-gear" aria-hidden="true"></i>Settings</a></li>
+  </ul></nav>
+  <div class="ad-side__foot"><ul class="ad-nav"><li><a href="{% url 'home' %}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>View website</a></li></ul></div>
+</aside>
+{% endwith %}

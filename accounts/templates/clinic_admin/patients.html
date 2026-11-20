@@ -1,0 +1,48 @@
+{% extends "clinic_admin/base_admin.html" %}
+{% comment %}
+Context: page_obj (patients). Patient: pk, full_name, first_name, last_name, email, phone, date_joined, appointments (queryset with service,date,time,status).
+POST URL: admin_patient_edit (pk): first_name, last_name, email, phone.
+{% endcomment %}
+{% block title %}Patients{% endblock %}
+{% block page_title %}Patients{% endblock %}
+{% block content %}
+<div class="ad-head"><div><h1>Patients</h1><p>Registered patient accounts.</p></div></div>
+<section class="ad-card ad-card--flush">
+  <div class="ad-toolbar"><div class="ag-field"><label class="ag-label" for="patSearch">Search this page</label><input class="ag-input" id="patSearch" type="search" data-live-search="#patTable" placeholder="Name, email or phone"></div></div>
+  <div class="ag-tablewrap"><table class="ag-table ag-table-stack" id="patTable">
+    <thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Phone</th><th scope="col">Joined</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+    <tbody>
+    {% for p in page_obj %}
+      <tr data-search="{{ p.full_name }} {{ p.email }} {{ p.phone }}">
+        <td data-label="Name"><strong>{{ p.full_name }}</strong></td><td data-label="Email">{{ p.email }}</td><td data-label="Phone">{{ p.phone }}</td><td data-label="Joined">{{ p.date_joined|date:"j M Y" }}</td>
+        <td data-label="Actions"><div class="ad-actions">
+          <button type="button" class="ag-btn ag-btn--outline ad-btn-icon" data-detail-modal="#patDetail" data-d-name="{{ p.full_name }}" data-d-email="{{ p.email }}" data-d-phone="{{ p.phone }}" data-history="#hist-{{ p.pk }}">View</button>
+          <button type="button" class="ag-btn ag-btn--outline ad-btn-icon" data-form-modal="#patEdit" data-action-url="{% url 'admin_patient_edit' p.pk %}" data-f-first-name="{{ p.first_name }}" data-f-last-name="{{ p.last_name }}" data-f-email="{{ p.email }}" data-f-phone="{{ p.phone }}">Edit</button>
+          <div class="d-none" id="hist-{{ p.pk }}">{% for a in p.appointments.all %}<li>{{ a.date|date:"j M Y" }}, {{ a.time|time:"g:i A" }} - {{ a.service }} <span class="ag-badge ag-badge--{{ a.status }}">{{ a.get_status_display }}</span></li>{% empty %}<li class="ag-muted">No appointments yet.</li>{% endfor %}</div>
+        </div></td>
+      </tr>
+    {% empty %}<tr><td colspan="5"><div class="ag-empty"><i class="bi bi-people" aria-hidden="true"></i><p>No patients registered yet.</p></div></td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+</section>
+{% include "partials/pagination.html" %}
+
+<div class="modal fade" id="patDetail" tabindex="-1" aria-labelledby="patDetailTitle" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content ag-modal">
+  <div class="modal-header"><h2 class="modal-title h4" id="patDetailTitle">Patient details</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+  <div class="modal-body"><dl class="ad-detail"><dt>Name</dt><dd data-fill="name"></dd><dt>Email</dt><dd data-fill="email"></dd><dt>Phone</dt><dd data-fill="phone"></dd></dl>
+  <h3 class="h6">Appointment history</h3><ul class="ad-list" data-fill-html></ul></div>
+</div></div></div>
+
+<div class="modal fade" id="patEdit" tabindex="-1" aria-labelledby="patEditTitle" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content ag-modal">
+  <form method="post" action="">{% csrf_token %}
+    <div class="modal-header"><h2 class="modal-title h4" id="patEditTitle">Edit patient</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body">
+      <div class="row g-3"><div class="col-sm-6 ag-field"><label class="ag-label" for="pe_fn">First name</label><input class="ag-input" id="pe_fn" name="first_name" required></div>
+      <div class="col-sm-6 ag-field"><label class="ag-label" for="pe_ln">Last name</label><input class="ag-input" id="pe_ln" name="last_name" required></div></div>
+      <div class="ag-field"><label class="ag-label" for="pe_em">Email</label><input class="ag-input" id="pe_em" type="email" name="email" required></div>
+      <div class="ag-field"><label class="ag-label" for="pe_ph">Phone</label><input class="ag-input" id="pe_ph" type="tel" name="phone"></div>
+    </div>
+    <div class="modal-footer"><button type="button" class="ag-btn ag-btn--outline ag-btn--sm" data-bs-dismiss="modal">Close</button><button type="submit" class="ag-btn ag-btn--primary ag-btn--sm">Save changes</button></div>
+  </form>
+</div></div></div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "accounts/base_account.html" %}
+{% load static %}
+{% comment %}Context: stats{total,upcoming,completed}, next_appointment, upcoming_appointments, recent_appointments{% endcomment %}
+{% block title %}My Dashboard | {{ site.clinic_name|default:"Austin Graces Dental Clinic" }}{% endblock %}
+{% block meta_description %}Your upcoming dental appointments and account overview.{% endblock %}
+{% block account_content %}
+<div class="ag-portal__head"><h1>Hello, {{ user.first_name|default:user.username }}</h1><a class="ag-btn ag-btn--primary ag-btn--sm" href="{% url 'appointment' %}">Book appointment</a></div>
+<div class="ag-stats">
+  <div class="ag-stat"><strong>{{ stats.upcoming|default:0 }}</strong><span>Upcoming</span></div>
+  <div class="ag-stat"><strong>{{ stats.completed|default:0 }}</strong><span>Completed</span></div>
+  <div class="ag-stat"><strong>{{ stats.total|default:0 }}</strong><span>Total visits booked</span></div>
+</div>
+{% if next_appointment %}
+<div class="ag-panel ag-next mb-4">
+  <div class="ag-next__date"><strong>{{ next_appointment.date|date:"j" }}</strong>{{ next_appointment.date|date:"M" }}</div>
+  <div class="flex-grow-1"><p class="ag-muted mb-0">Your next appointment</p><h2 class="h4 mb-1">{{ next_appointment.service }}</h2><p class="mb-0">{{ next_appointment.date|date:"l" }} at {{ next_appointment.time|time:"g:i A" }} with {{ next_appointment.dentist }}</p></div>
+  <span class="ag-badge ag-badge--{{ next_appointment.status }}">{{ next_appointment.get_status_display }}</span>
+</div>
+{% endif %}
+<h2 class="h4">Upcoming appointments</h2>
+{% include "partials/appointment_table.html" with appointments=upcoming_appointments show_cancel=True empty_text="You have no upcoming appointments." %}
+<h2 class="h4 mt-5">Recent history</h2>
+{% include "partials/appointment_table.html" with appointments=recent_appointments show_cancel=False empty_text="Past appointments will appear here." %}
+<p class="mt-3"><a class="ag-link" href="{% url 'my_appointments' %}">View all appointments</a></p>
+{% include "partials/cancel_modal.html" %}
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/auth.css' %}">{% endblock %}
+{% block content %}
+<div class="container ag-portal">
+  {% include "partials/sidebar.html" %}
+  <div>{% block account_content %}{% endblock %}</div>
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/account.js' %}"></script>{% block account_js %}{% endblock %}{% endblock %}

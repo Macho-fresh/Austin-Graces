@@ -1,0 +1,58 @@
+{% load static %}
+{% comment %}
+  Context expected (via context processor): site (clinic settings).
+  request.resolver_match.url_name drives the active link.
+  Required URL names: home, about, services, dentists, contact, appointment, login, register, logout, dashboard.
+{% endcomment %}
+{% with current=request.resolver_match.url_name %}
+<header class="ag-header" id="agHeader">
+  <div class="container ag-header__bar">
+    <a class="ag-brand" href="{% url 'home' %}" aria-label="{{ site.clinic_name|default:'Austin Graces Dental Clinic' }} home">
+      {% if site.logo %}
+        <img src="{{ site.logo.url }}" alt="" height="40">
+      {% else %}
+        <img src="{% static 'images/logo/logo.svg' %}" alt="" height="40">
+      {% endif %}
+      <span class="ag-brand__name">{{ site.clinic_name|default:"Austin Graces Dental Clinic" }}</span>
+    </a>
+
+    <button class="ag-burger" id="agBurger" type="button" aria-expanded="false" aria-controls="agNav" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="ag-nav" id="agNav" aria-label="Main navigation">
+      <ul class="ag-nav__list">
+        <li><a href="{% url 'home' %}" {% if current == 'home' %}aria-current="page"{% endif %}>Home</a></li>
+        <li><a href="{% url 'about' %}" {% if current == 'about' %}aria-current="page"{% endif %}>About Us</a></li>
+        <li><a href="{% url 'services' %}" {% if current == 'services' or current == 'service_detail' %}aria-current="page"{% endif %}>Our Services</a></li>
+        <li><a href="{% url 'dentists' %}" {% if current == 'dentists' or current == 'dentist_detail' %}aria-current="page"{% endif %}>Our Dentists</a></li>
+        <li><a href="{% url 'contact' %}" {% if current == 'contact' %}aria-current="page"{% endif %}>Contact</a></li>
+      </ul>
+
+      <div class="ag-nav__actions">
+        {% if user.is_authenticated %}
+          <div class="ag-dropdown" data-dropdown>
+            <button class="ag-dropdown__toggle" type="button" aria-expanded="false" aria-haspopup="true">
+              <i class="bi bi-person-circle" aria-hidden="true"></i>
+              <span>{{ user.first_name|default:user.username }}</span>
+              <i class="bi bi-chevron-down" aria-hidden="true"></i>
+            </button>
+            <ul class="ag-dropdown__menu" role="menu">
+              <li><a role="menuitem" href="{% url 'dashboard' %}">My dashboard</a></li>
+              <li>
+                <form method="post" action="{% url 'logout' %}">
+                  {% csrf_token %}
+                  <button role="menuitem" type="submit">Log out</button>
+                </form>
+              </li>
+            </ul>
+          </div>
+        {% else %}
+          <a class="ag-nav__login" href="{% url 'login' %}">Patient login</a>
+        {% endif %}
+        <a class="ag-btn ag-btn--primary" href="{% url 'appointment' %}">Book Appointment</a>
+      </div>
+    </nav>
+  </div>
+</header>
+{% endwith %}

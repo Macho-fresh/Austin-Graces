@@ -1,0 +1,9 @@
+<section class="ag-section ag-section--navy ag-cta">
+  <div class="container ag-cta__inner">
+    <div>
+      <h2>{{ cta_title|default:"Ready for a healthier smile?" }}</h2>
+      <p>{{ cta_text|default:"Choose a service, pick a dentist and a time that suits you. We will confirm your visit." }}</p>
+    </div>
+    <a class="ag-btn ag-btn--primary" href="{% url 'appointment' %}{% if service %}?service={{ service.slug }}{% elif dentist %}?dentist={{ dentist.slug }}{% endif %}">Book an Appointment</a>
+  </div>
+</section>

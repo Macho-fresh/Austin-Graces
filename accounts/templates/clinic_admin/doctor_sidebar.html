@@ -1,0 +1,13 @@
+{% load static %}
+{% comment %}Doctor navigation. URL names: doctor_schedule, doctor_appointments, home{% endcomment %}
+{% with c=request.resolver_match.url_name %}
+<aside class="ad-side" id="adminSide" aria-label="Doctor navigation">
+  <a class="ag-brand ag-brand--light" href="{% url 'doctor_schedule' %}"><img src="{% static 'images/logo/logo-light.svg' %}" alt="" height="36"><span class="ag-brand__name">{{ site.clinic_name|default:"Austin Graces Dental Clinic" }}</span></a>
+  <nav><ul class="ad-nav">
+    <li class="ad-nav__label">My work</li>
+    <li><a href="{% url 'doctor_schedule' %}" {% if c == 'doctor_schedule' %}aria-current="page"{% endif %}><i class="bi bi-calendar-week" aria-hidden="true"></i>My schedule</a></li>
+    <li><a href="{% url 'doctor_appointments' %}" {% if c == 'doctor_appointments' %}aria-current="page"{% endif %}><i class="bi bi-list-check" aria-hidden="true"></i>My appointments</a></li>
+  </ul></nav>
+  <div class="ad-side__foot"><ul class="ad-nav"><li><a href="{% url 'home' %}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>View website</a></li></ul></div>
+</aside>
+{% endwith %}

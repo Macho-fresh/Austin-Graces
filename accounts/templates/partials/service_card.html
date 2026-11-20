@@ -1,0 +1,16 @@
+{% comment %}Usage: include with service=service. Fields: name, slug, short_description, image, icon (bootstrap-icons class).{% endcomment %}
+{% load static %}
+<article class="ag-card">
+  {% if service.image %}
+    <img class="ag-card__media" src="{{ service.image.url }}" alt="" loading="lazy">
+  {% endif %}
+  <div class="ag-card__body">
+    {% if not service.image %}<span class="ag-icon-badge" aria-hidden="true"><i class="bi {{ service.icon|default:'bi-heart-pulse' }}"></i></span>{% endif %}
+    <h3>{{ service.name }}</h3>
+    <p>{{ service.short_description }}</p>
+    <div class="ag-card__footer">
+      <a class="ag-link" href="{% url 'service_detail' service.slug %}">Learn more<span class="visually-hidden"> about {{ service.name }}</span></a>
+      <a class="ag-btn ag-btn--outline ag-btn--sm" href="{% url 'appointment' %}?service={{ service.slug }}">Book Appointment</a>
+    </div>
+  </div>
+</article>

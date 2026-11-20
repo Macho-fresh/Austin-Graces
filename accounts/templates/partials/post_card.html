@@ -1,0 +1,12 @@
+{% comment %}Usage: include with post=post. Fields: title, slug, excerpt, image, category (name), published_at.{% endcomment %}
+{% load static %}
+<article class="ag-card">
+  <a href="{% url 'blog_detail' post.slug %}" tabindex="-1" aria-hidden="true">
+    {% if post.image %}<img class="ag-card__media" src="{{ post.image.url }}" alt="" loading="lazy">{% else %}<img class="ag-card__media" src="{% static 'images/clinic/placeholder.svg' %}" alt="" loading="lazy">{% endif %}
+  </a>
+  <div class="ag-card__body">
+    <p class="ag-muted ag-meta"><span class="ag-badge">{{ post.category }}</span> <time datetime="{{ post.published_at|date:'Y-m-d' }}">{{ post.published_at|date:"j M Y" }}</time></p>
+    <h3><a href="{% url 'blog_detail' post.slug %}">{{ post.title }}</a></h3>
+    <p>{{ post.excerpt|truncatewords:28 }}</p>
+  </div>
+</article>

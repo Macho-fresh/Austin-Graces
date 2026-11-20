@@ -1,0 +1,11 @@
+{% comment %}Usage: include with field=form.<name>, label=, type=, autocomplete=, required=True. Server errors come from field.errors.{% endcomment %}
+<div class="ag-field {% if field.errors %}has-error{% endif %}">
+  <label class="ag-label" for="{{ field.id_for_label }}">{{ label }}{% if required %} <span class="ag-req" aria-hidden="true">*</span>{% endif %}</label>
+  {% if type == "password" %}
+    <div class="ag-password"><input class="ag-input" id="{{ field.id_for_label }}" name="{{ field.html_name }}" type="password" autocomplete="{{ autocomplete }}" {% if required %}required{% endif %} aria-describedby="{{ field.id_for_label }}_err"><button class="ag-password__toggle" type="button" data-toggle-password aria-label="Show password"><i class="bi bi-eye" aria-hidden="true"></i></button></div>
+  {% else %}
+    <input class="ag-input" id="{{ field.id_for_label }}" name="{{ field.html_name }}" type="{{ type|default:'text' }}" autocomplete="{{ autocomplete }}" {% if required %}required{% endif %} value="{{ field.value|default:'' }}" aria-describedby="{{ field.id_for_label }}_err">
+  {% endif %}
+  <p class="ag-error" id="{{ field.id_for_label }}_err">{% if field.errors %}{{ field.errors.0 }}{% else %}{{ error_text|default:"This field is required." }}{% endif %}</p>
+  {% if help %}<p class="ag-help">{{ help }}</p>{% endif %}
+</div>

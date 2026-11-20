@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Create Patient Account | {{ site.clinic_name|default:"Austin Graces Dental Clinic" }}{% endblock %}
+{% block meta_description %}Create a patient account to book and manage dental appointments.{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/auth.css' %}">{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<div class="ag-auth">
+  <div class="ag-auth__aside"><h1>Your dental visits in one place</h1><ul><li><i class="bi bi-check2-circle"></i>Faster booking</li><li><i class="bi bi-check2-circle"></i>Appointment history</li><li><i class="bi bi-check2-circle"></i>Update your details any time</li></ul></div>
+  <div class="ag-auth__main"><div class="ag-auth__card">
+    <h2>Create your account</h2>
+    {% if form.non_field_errors %}<div class="ag-alert ag-alert--error" role="alert">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>{% endif %}
+    <form method="post" action="{% url 'register' %}" novalidate data-validate>
+      {% csrf_token %}
+      <div class="row g-3"><div class="col-sm-6">{% include "partials/form_field.html" with field=form.first_name label="First name" autocomplete="given-name" required=True error_text="Enter your first name." %}</div>
+      <div class="col-sm-6">{% include "partials/form_field.html" with field=form.last_name label="Last name" autocomplete="family-name" required=True error_text="Enter your last name." %}</div></div>
+      {% include "partials/form_field.html" with field=form.email label="Email address" type="email" autocomplete="email" required=True error_text="Enter a valid email address." %}
+      {% include "partials/form_field.html" with field=form.phone label="Phone number" type="tel" autocomplete="tel" required=True error_text="Enter your phone number." %}
+      {% include "partials/form_field.html" with field=form.password1 label="Password" type="password" autocomplete="new-password" required=True help="Use at least 8 characters." error_text="Choose a password." %}
+      {% include "partials/form_field.html" with field=form.password2 label="Confirm password" type="password" autocomplete="new-password" required=True error_text="Repeat your password." %}
+      <button class="ag-btn ag-btn--primary ag-btn--block" type="submit">Create account</button>
+    </form>
+    <p class="ag-auth__foot">Already registered? <a href="{% url 'login' %}">Log in</a></p>
+  </div></div>
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/validation.js' %}"></script>{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/auth.css' %}">{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<div class="ag-auth ag-auth--single"><div class="ag-auth__main"><div class="ag-auth__card">{% block card %}{% endblock %}</div></div></div>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/validation.js' %}"></script>{% endblock %}

@@ -1,0 +1,20 @@
+{% comment %}Usage: include with appointments=<iterable>, show_cancel=True. Fields: service, dentist, date, time, status, get_status_display, can_cancel, pk.{% endcomment %}
+<div class="ag-tablewrap">
+<table class="ag-table ag-table-stack">
+  <thead><tr><th scope="col">Date</th><th scope="col">Time</th><th scope="col">Service</th><th scope="col">Dentist</th><th scope="col">Status</th>{% if show_cancel %}<th scope="col"><span class="visually-hidden">Actions</span></th>{% endif %}</tr></thead>
+  <tbody>
+  {% for a in appointments %}
+    <tr>
+      <td data-label="Date">{{ a.date|date:"D, j M Y" }}</td>
+      <td data-label="Time">{{ a.time|time:"g:i A" }}</td>
+      <td data-label="Service">{{ a.service }}</td>
+      <td data-label="Dentist">{{ a.dentist }}</td>
+      <td data-label="Status"><span class="ag-badge ag-badge--{{ a.status }}">{{ a.get_status_display }}</span></td>
+      {% if show_cancel %}<td data-label="Action">{% if a.can_cancel %}<button type="button" class="ag-btn ag-btn--outline ag-btn--sm" data-cancel-url="{% url 'cancel_appointment' a.pk %}" data-cancel-label="{{ a.service }} on {{ a.date|date:'j M Y' }} at {{ a.time|time:'g:i A' }}">Cancel</button>{% else %}<span class="ag-muted">-</span>{% endif %}</td>{% endif %}
+    </tr>
+  {% empty %}
+    <tr><td colspan="6"><div class="ag-empty"><i class="bi bi-calendar-x" aria-hidden="true"></i><p>{{ empty_text|default:"No appointments to show." }}</p></div></td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>

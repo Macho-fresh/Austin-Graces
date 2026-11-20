@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Access denied | {{ site.clinic_name|default:"Austin Graces Dental Clinic" }}{% endblock %}
+{% block meta_description %}You do not have permission to view this page.{% endblock %}
+{% block content %}
+<section class="ag-section"><div class="container ag-narrow">
+  <h1>You do not have access to this page</h1>
+  <p>This area is for clinic staff or dentists. If you think you should have access, please contact the clinic.</p>
+  <a class="ag-btn ag-btn--primary" href="{% url 'home' %}">Go to home page</a>
+</div></section>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% load static %}
+{% comment %}
+  Context expected (context processor `site`): clinic_name, phone, email, address,
+  whatsapp, facebook_url, instagram_url, x_url, opening_hours (list of {days, hours}).
+  Every value falls back to an editable placeholder.
+{% endcomment %}
+<footer class="ag-footer">
+  <div class="container">
+    <div class="row g-5">
+      <div class="col-lg-4">
+        <a class="ag-brand ag-brand--light" href="{% url 'home' %}">
+          <img src="{% static 'images/logo/logo-light.svg' %}" alt="" height="40">
+          <span class="ag-brand__name">{{ site.clinic_name|default:"Austin Graces Dental Clinic" }}</span>
+        </a>
+        <p class="ag-footer__about">{{ site.tagline|default:"Gentle, modern dental care for the whole family in New Haven, Enugu." }}</p>
+        <ul class="ag-social" aria-label="Social media">
+          <li><a href="{{ site.facebook_url|default:'#' }}" aria-label="Facebook" rel="noopener"><i class="bi bi-facebook" aria-hidden="true"></i></a></li>
+          <li><a href="{{ site.instagram_url|default:'#' }}" aria-label="Instagram" rel="noopener"><i class="bi bi-instagram" aria-hidden="true"></i></a></li>
+          <li><a href="{{ site.x_url|default:'#' }}" aria-label="X (Twitter)" rel="noopener"><i class="bi bi-twitter-x" aria-hidden="true"></i></a></li>
+          {% if site.whatsapp %}<li><a href="https://wa.me/{{ site.whatsapp }}" aria-label="WhatsApp" rel="noopener"><i class="bi bi-whatsapp" aria-hidden="true"></i></a></li>{% endif %}
+        </ul>
+      </div>
+
+      <div class="col-6 col-lg-2">
+        <h2 class="ag-footer__title">Explore</h2>
+        <ul class="ag-footer__links">
+          <li><a href="{% url 'about' %}">About Us</a></li>
+          <li><a href="{% url 'services' %}">Our Services</a></li>
+          <li><a href="{% url 'dentists' %}">Our Dentists</a></li>
+          <li><a href="{% url 'testimonials' %}">Testimonials</a></li>
+          <li><a href="{% url 'blog' %}">Blog</a></li>
+          <li><a href="{% url 'faq' %}">FAQ</a></li>
+        </ul>
+      </div>
+
+      <div class="col-6 col-lg-3">
+        <h2 class="ag-footer__title">Contact</h2>
+        <ul class="ag-footer__contact">
+          <li><i class="bi bi-geo-alt" aria-hidden="true"></i><span>{{ site.address|default:"Clinic address, New Haven, Enugu, Nigeria" }}</span></li>
+          <li><i class="bi bi-telephone" aria-hidden="true"></i><a href="tel:{{ site.phone|default:'' }}">{{ site.phone|default:"+234 000 000 0000" }}</a></li>
+          <li><i class="bi bi-envelope" aria-hidden="true"></i><a href="mailto:{{ site.email|default:'' }}">{{ site.email|default:"info@example.com" }}</a></li>
+        </ul>
+      </div>
+
+      <div class="col-lg-3">
+        <h2 class="ag-footer__title">Opening hours</h2>
+        <dl class="ag-hours">
+          {% for slot in site.opening_hours %}
+            <div><dt>{{ slot.days }}</dt><dd>{{ slot.hours }}</dd></div>
+          {% empty %}
+            <div><dt>Monday to Friday</dt><dd>Set in website settings</dd></div>
+          {% endfor %}
+        </dl>
+        <a class="ag-btn ag-btn--primary ag-btn--sm" href="{% url 'appointment' %}">Book Appointment</a>
+      </div>
+    </div>
+
+    <div class="ag-footer__legal">
+      <p>&copy; {% now "Y" %} {{ site.clinic_name|default:"Austin Graces Dental Clinic" }}. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
