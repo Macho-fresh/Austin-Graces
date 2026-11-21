@@ -23,6 +23,91 @@
     document.body.appendChild(f); f.submit();
   }
 
+  /* Searchable select: <select data-combo data-placeholder="..."> becomes a text box with a filtered list.
+     The real <select> stays in the form and holds the value; disabled options show greyed out and cannot be chosen. */
+  function initCombo(select) {
+    if (select._comboSync) return;
+    const wrap = document.createElement("div"); wrap.className = "ag-combo";
+    const input = document.createElement("input");
+    input.type = "text"; input.className = "ag-input"; input.autocomplete = "off";
+    input.placeholder = select.dataset.placeholder || "Search";
+    input.setAttribute("role", "combobox"); input.setAttribute("aria-autocomplete", "list"); input.setAttribute("aria-expanded", "false");
+    const base = select.id || "combo" + Math.random().toString(36).slice(2, 7);
+    const list = document.createElement("ul"); list.className = "ag-combo__list"; list.id = base + "_list"; list.hidden = true;
+    list.setAttribute("role", "listbox");
+    input.id = base + "_input"; input.setAttribute("aria-controls", list.id);
+    const lab = select.id && document.querySelector('label[for="' + select.id + '"]');
+    if (lab) lab.htmlFor = input.id;
+    select.parentNode.insertBefore(wrap, select);
+    wrap.append(input, list, select);
+    select.hidden = true; select.tabIndex = -1;
+
+    let items = [], active = -1;
+    const text = (o) => o.textContent.trim();
+    const selectedText = () => { const o = select.options[select.selectedIndex]; return o && o.value ? text(o) : ""; };
+    const enabled = (li) => li.getAttribute("aria-disabled") !== "true";
+
+    function setActive(i) {
+      items.forEach((li) => { li.classList.remove("is-active"); li.removeAttribute("aria-current"); });
+      active = i;
+      if (i < 0 || !items[i]) { input.removeAttribute("aria-activedescendant"); return; }
+      items[i].classList.add("is-active"); items[i].setAttribute("aria-current", "true");
+      input.setAttribute("aria-activedescendant", items[i].id);
+      items[i].scrollIntoView({ block: "nearest" });
+    }
+    function render(query) {
+      const q = (query || "").trim().toLowerCase();
+      list.innerHTML = ""; items = [];
+      let more = false;
+      Array.from(select.options).forEach((o) => {
+        if (q && (!o.value || !text(o).toLowerCase().includes(q))) return;    // hide "No user" while searching
+        if (items.length >= 100) { more = true; return; }
+        const li = document.createElement("li");
+        li.setAttribute("role", "option"); li.id = list.id + "_" + items.length; li.dataset.value = o.value;
+        li.textContent = text(o) + (o.disabled ? " (already a dentist)" : "");
+        if (o.disabled) { li.setAttribute("aria-disabled", "true"); li.classList.add("is-disabled"); }
+        if (o.value === select.value) li.setAttribute("aria-selected", "true");
+        list.appendChild(li); items.push(li);
+      });
+      if (!items.length || more) {
+        const note = document.createElement("li");
+        note.className = "ag-combo__note"; note.setAttribute("role", "presentation");
+        note.textContent = items.length ? "Keep typing to narrow the list" : "No matching users";
+        list.appendChild(note);
+      }
+      setActive(q ? items.findIndex(enabled) : -1);
+    }
+    function open(query) { render(query); list.hidden = false; input.setAttribute("aria-expanded", "true"); }
+    function close() { list.hidden = true; input.setAttribute("aria-expanded", "false"); input.removeAttribute("aria-activedescendant"); input.value = selectedText(); active = -1; }
+    function choose(li) {
+      if (!li || !enabled(li)) return;
+      select.value = li.dataset.value;
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+      close();
+    }
+    function move(step) {
+      if (list.hidden) { open(""); return; }
+      let i = active;
+      do { i += step; } while (items[i] && !enabled(items[i]));
+      if (items[i]) setActive(i);
+    }
+
+    input.addEventListener("focus", () => { input.select(); open(""); });
+    input.addEventListener("click", () => { if (list.hidden) open(""); });
+    input.addEventListener("input", () => open(input.value));
+    input.addEventListener("blur", close);
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown") { e.preventDefault(); move(1); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); move(-1); }
+      else if (e.key === "Enter") { if (!list.hidden) { e.preventDefault(); choose(items[active]); } }
+      else if (e.key === "Escape" && !list.hidden) { e.stopPropagation(); close(); }   // do not close the modal as well
+    });
+    list.addEventListener("mousedown", (e) => { e.preventDefault(); choose(e.target.closest("li[role=option]")); });
+    select._comboSync = () => { input.value = selectedText(); };
+    select._comboSync();
+  }
+  $$("select[data-combo]").forEach(initCombo);
+
   /* Mobile sidebar */
   const side = $("#adminSide"), overlay = $("#adminOverlay"), menuBtn = $("#adminMenu");
   function setSide(open) {
@@ -56,6 +141,11 @@
       $$("img[data-current-image]", m).forEach((img) => { if (fm.dataset.imageUrl) { img.src = fm.dataset.imageUrl; img.hidden = false; } else { img.removeAttribute("src"); img.hidden = true; } });
       form.action = fm.dataset.actionUrl;
       const title = $("[data-modal-title]", m); if (title && fm.dataset.title) title.textContent = fm.dataset.title;
+      const userSelect = form.elements["user"];     // dentist form: block accounts already linked to another dentist
+      if (userSelect && userSelect.options) {
+        const current = fm.dataset.dentistId || "";
+        Array.from(userSelect.options).forEach((o) => { o.disabled = !!o.dataset.linkedTo && o.dataset.linkedTo !== current; });
+      }
       fm.getAttributeNames().filter((n) => n.startsWith("data-f-")).forEach((n) => {
         const name = n.slice(7).replace(/-/g, "_");
         const field = form.elements[name]; if (!field) return;
@@ -63,6 +153,7 @@
         if (field.type === "checkbox") field.checked = v === "true";
         else if (field.type !== "file") field.value = v;
       });
+      $$("select[data-combo]", form).forEach((sel) => { if (sel._comboSync) sel._comboSync(); });
       modalFor(m).show(); return;
     }
 
@@ -107,5 +198,5 @@
   $$("select[data-autosubmit]").forEach((s) => s.addEventListener("change", () => s.form.submit()));
 
   /* Reset image previews when a form modal closes */
-  $$(".modal").forEach((m) => m.addEventListener("hidden.bs.modal", () => $$("form", m).forEach((f) => f.reset())));
+  $$(".modal").forEach((m) => m.addEventListener("hidden.bs.modal", () => $$("form", m).forEach((f) => { f.reset(); })));
 })();

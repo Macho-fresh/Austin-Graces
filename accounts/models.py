@@ -125,3 +125,39 @@ class Appointment(models.Model):
     def clean(self):
         if self._state.adding and self.date and self.time and self.is_past:
             raise ValidationError("Choose a date and time in the future.")
+
+# models.py
+
+class DentistSchedule(models.Model):
+    DAYS = [
+        (0, 'Monday'),
+        (1, 'Tuesday'),
+        (2, 'Wednesday'),
+        (3, 'Thursday'),
+        (4, 'Friday'),
+        (5, 'Saturday'),
+        (6, 'Sunday'),
+    ]
+
+    dentist = models.ForeignKey(
+        Dentist,
+        on_delete=models.CASCADE,
+        related_name='schedules'
+    )
+    weekday = models.PositiveSmallIntegerField(choices=DAYS)
+    is_working = models.BooleanField(default=False)
+    open_time = models.TimeField(null=True, blank=True)
+    close_time = models.TimeField(null=True, blank=True)
+    slot_minutes = models.PositiveIntegerField(default=30)
+
+    class Meta:
+        ordering = ['weekday']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['dentist', 'weekday'],
+                name='unique_dentist_weekday'
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.dentist} - {self.get_weekday_display()}'

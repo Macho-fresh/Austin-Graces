@@ -74,6 +74,12 @@ urlpatterns = [
     ),
 
     path(
+        'admin/dentist/<int:pk>/toggle',
+        admin_dentist_toggle,
+        name='admin_dentist_toggle'
+        ),
+
+    path(
         'admin_services/<int:pk>/delete/',
         admin_service_delete,
         name='admin_service_delete'
@@ -90,11 +96,12 @@ urlpatterns = [
     service_detail,
     name='service_detail'
     ),
-    
+
     path(
     'dentists/<slug:slug>/',
     dentist_detail,
     name='dentist_detail'
     ),
+    path('admin/patients/<int:pk>/edit/', admin_patient_edit, name='admin_patient_edit'),
 ]
 

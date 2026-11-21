@@ -102,3 +102,7 @@ body.ag-admin { background: var(--ag-mist); font-size: 1rem; }
 .ad-tabs a { display: inline-flex; align-items: center; min-height: 44px; padding: .4rem 1rem; border: 1.5px solid #CBD7E2; border-radius: 999px; color: var(--ag-navy); text-decoration: none; }
 .ad-tabs a:hover { border-color: var(--ag-teal); }
 .ad-tabs a[aria-current="true"] { background: var(--ag-navy); border-color: var(--ag-navy); color: #fff; }
+
+/* Dentist accounts */
+.ad-person--inactive img { filter: grayscale(1); opacity: .6; }
+.ad-user-line { font-size: .93rem; color: var(--ag-muted); word-break: break-all; }

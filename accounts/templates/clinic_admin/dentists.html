@@ -1,23 +1,34 @@
 {% extends "clinic_admin/base_admin.html" %}
 {% load static %}
 {% comment %}
-Context: dentists (full_name, title, specialization, qualifications, experience_years, bio, photo, pk).
-POST URLs: admin_dentist_add, admin_dentist_edit(pk), admin_dentist_delete(pk). Form is multipart (photo).
+Context: dentists (select_related("user")): pk, full_name, title, specialization, qualifications, experience_years, bio, photo, is_active, user.
+users (select_related("dentist_profile")): every website user, for the searchable User dropdown.
+POST URLs: admin_dentist_add, admin_dentist_edit(pk), admin_dentist_toggle(pk), admin_dentist_delete(pk). Form is multipart (photo).
+Form fields: full_name, title, specialization, experience_years, qualifications, bio, photo, is_active (switch), user (select, optional).
 {% endcomment %}
 {% block title %}Dentists{% endblock %}
 {% block page_title %}Dentists{% endblock %}
 {% block content %}
 <div class="ad-head"><div><h1>Dentists</h1><p>Profiles shown on the public website.</p></div>
-  <button type="button" class="ag-btn ag-btn--primary ag-btn--sm" data-form-modal="#dentistModal" data-action-url="{% url 'admin_dentist_add' %}" data-title="Add dentist"><i class="bi bi-plus-lg" aria-hidden="true"></i>Add dentist</button></div>
+  <button type="button" class="ag-btn ag-btn--primary ag-btn--sm" data-form-modal="#dentistModal" data-action-url="{% url 'admin_dentist_add' %}" data-title="Add dentist" data-dentist-id=""><i class="bi bi-plus-lg" aria-hidden="true"></i>Add dentist</button></div>
 <div class="ad-cards">
   {% for d in dentists %}
-  <article class="ad-card ad-person">
+  <article class="ad-card ad-person {% if not d.is_active %}ad-person--inactive{% endif %}">
     <img src="{% if d.photo %}{{ d.photo.url }}{% else %}{% static 'images/dentists/placeholder.svg' %}{% endif %}" alt="">
     <h3>{{ d.full_name }}</h3><p class="mb-0 ag-muted">{{ d.title }}</p>
-    {% if d.specialization %}<p><span class="ag-badge">{{ d.specialization }}</span></p>{% endif %}
+    <p class="mb-0">
+      <span class="ag-badge {% if d.is_active %}ag-badge--on{% else %}ag-badge--off{% endif %}">{% if d.is_active %}Active{% else %}Inactive{% endif %}</span>
+      {% if d.specialization %}<span class="ag-badge">{{ d.specialization }}</span>{% endif %}
+    </p>
+    <p class="ad-user-line mb-0">{% if d.user %}<i class="bi bi-person-check" aria-hidden="true"></i> User: {{ d.user.get_full_name|default:d.user.username }} ({{ d.user.email|default:d.user.username }}){% else %}<i class="bi bi-person-dash" aria-hidden="true"></i> No user{% endif %}</p>
     <div class="ad-actions mt-auto">
-      <button type="button" class="ag-btn ag-btn--outline ad-btn-icon" data-form-modal="#dentistModal" data-title="Edit dentist" data-action-url="{% url 'admin_dentist_edit' d.pk %}" data-image-url="{% if d.photo %}{{ d.photo.url }}{% endif %}" data-f-full-name="{{ d.full_name }}" data-f-title="{{ d.title }}" data-f-specialization="{{ d.specialization }}" data-f-qualifications="{{ d.qualifications }}" data-f-experience-years="{{ d.experience_years|default:'' }}" data-f-bio="{{ d.bio }}">Edit</button>
-      <button type="button" class="ag-btn ag-btn--outline ad-btn-icon" data-confirm-url="{% url 'admin_dentist_delete' d.pk %}" data-confirm-title="Delete dentist?" data-confirm-text="Delete {{ d.full_name }}? Their profile will be removed from the website." data-confirm-label="Delete">Delete</button>
+      <button type="button" class="ag-btn ag-btn--outline ad-btn-icon" data-form-modal="#dentistModal" data-title="Edit dentist" data-action-url="{% url 'admin_dentist_edit' d.pk %}" data-image-url="{% if d.photo %}{{ d.photo.url }}{% endif %}" data-dentist-id="{{ d.pk }}" data-f-user="{{ d.user_id|default_if_none:'' }}" data-f-full-name="{{ d.full_name }}" data-f-title="{{ d.title }}" data-f-specialization="{{ d.specialization }}" data-f-qualifications="{{ d.qualifications }}" data-f-experience-years="{{ d.experience_years|default_if_none:'' }}" data-f-bio="{{ d.bio }}" data-f-is-active="{{ d.is_active|yesno:'true,false' }}">Edit</button>
+      {% if d.is_active %}
+        <button type="button" class="ag-btn ag-btn--outline ad-btn-icon" data-confirm-url="{% url 'admin_dentist_toggle' d.pk %}" data-confirm-title="Deactivate {{ d.full_name }}?" data-confirm-text="They will disappear from the website and the booking form. Existing appointments are not changed." data-confirm-label="Deactivate">Deactivate</button>
+      {% else %}
+        <button type="button" class="ag-btn ag-btn--primary ad-btn-icon" data-post-url="{% url 'admin_dentist_toggle' d.pk %}">Activate</button>
+      {% endif %}
+      <button type="button" class="ag-btn ag-btn--outline ad-btn-icon" data-confirm-url="{% url 'admin_dentist_delete' d.pk %}" data-confirm-title="Delete dentist?" data-confirm-text="Delete {{ d.full_name }}? This cannot be undone. A dentist with appointment records cannot be deleted; deactivate them instead." data-confirm-label="Delete">Delete</button>
     </div>
   </article>
   {% empty %}<div class="ad-card ag-empty ad-span-all"><i class="bi bi-person-badge" aria-hidden="true"></i><p>No dentists yet. Add the first profile.</p></div>{% endfor %}
@@ -30,10 +41,23 @@ POST URLs: admin_dentist_add, admin_dentist_edit(pk), admin_dentist_delete(pk). 
       <div class="col-md-6 ag-field"><label class="ag-label" for="dn_name">Full name <span class="ag-req" aria-hidden="true">*</span></label><input class="ag-input" id="dn_name" name="full_name" required></div>
       <div class="col-md-6 ag-field"><label class="ag-label" for="dn_title">Professional title <span class="ag-req" aria-hidden="true">*</span></label><input class="ag-input" id="dn_title" name="title" required></div>
       <div class="col-md-6 ag-field"><label class="ag-label" for="dn_spec">Specialization</label><input class="ag-input" id="dn_spec" name="specialization"></div>
-      <div class="col-md-6 ag-field"><label class="ag-label" for="dn_exp">Years of experience</label><input class="ag-input" id="dn_exp" type="number" min="0" name="experience_years"></div>
+      <div class="col-md-6 ag-field"><label class="ag-label" for="dn_exp">Years of experience</label><input class="ag-input" id="dn_exp" type="number" min="0" max="80" name="experience_years"></div>
       <div class="col-12 ag-field"><label class="ag-label" for="dn_qual">Qualifications</label><textarea class="ag-textarea" id="dn_qual" name="qualifications" rows="2"></textarea><p class="ag-help">One per line. Only enter qualifications you can verify.</p></div>
       <div class="col-12 ag-field"><label class="ag-label" for="dn_bio">Biography</label><textarea class="ag-textarea" id="dn_bio" name="bio" rows="4"></textarea></div>
       <div class="col-12 ag-field"><label class="ag-label" for="dn_photo">Photograph</label><input class="ag-input" id="dn_photo" type="file" name="photo" accept="image/*" data-preview="#dn_preview"><img class="ad-preview" id="dn_preview" data-current-image alt="Photo preview" hidden></div>
+
+      <div class="col-12 ag-field">
+        <label class="ag-label" for="dn_user">User</label>
+        <select class="ag-select" id="dn_user" name="user" data-combo data-placeholder="Search by name or email">
+          <option value="">No user</option>
+          {% for u in users %}<option value="{{ u.pk }}" data-linked-to="{{ u.dentist_profile.pk }}">{{ u.get_full_name|default:u.username }} ({{ u.email|default:u.username }})</option>{% endfor %}
+        </select>
+        <p class="ag-help">Select the website user for this dentist. Type to search by name or email. Users already linked to another dentist cannot be chosen.</p>
+      </div>
+
+      <div class="col-12"><label class="ag-switch"><input type="checkbox" name="is_active" value="true" checked><span class="track"></span><span>Active: shown on the website and available for booking</span></label></div>
+
+
     </div></div>
     <div class="modal-footer"><button type="button" class="ag-btn ag-btn--outline ag-btn--sm" data-bs-dismiss="modal">Cancel</button><button type="submit" class="ag-btn ag-btn--primary ag-btn--sm">Save dentist</button></div>
   </form>
