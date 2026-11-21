@@ -3,6 +3,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
 from .models import *
+from django.utils import timezone
 
 class RegisterForm(forms.Form):
     first_name = forms.CharField(max_length=100)
@@ -43,3 +44,44 @@ class RegisterForm(forms.Form):
         )
 
         return user
+
+class AppointmentForm(forms.ModelForm):
+
+    class Meta:
+        model = Appointment
+        fields = [
+            'full_name',
+            'email',
+            'phone',
+            'service',
+            'dentist',
+            'date',
+            'time',
+            'message',
+        ]
+
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+            'message': forms.Textarea(attrs={'rows': 4}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['service'].queryset = Service.objects.filter(
+            is_published=True
+        ).order_by('name')
+
+        self.fields['dentist'].queryset = Dentist.objects.filter(
+            is_active=True
+        ).order_by('full_name')
+
+    def clean_date(self):
+        appointment_date = self.cleaned_data['date']
+
+        if appointment_date < timezone.localdate():
+            raise forms.ValidationError(
+                'Please choose today or a future date.'
+            )
+
+        return appointment_date

@@ -35,7 +35,11 @@ urlpatterns = [
         ),
         name="password_reset_complete"
     ),
-    path('dashboard', dashboard, name='dashboard'),
+    path(
+    'clinic-admin/',
+    admin_dashboard,
+    name='dashboard'
+    ),
     # path('password_reset_confirm', password_reset_confirm, name='password_reset_confirm'),
     path('my_appointments', my_appointments, name='my_appointments'),
     path('profile', profile, name='profile'),
@@ -47,12 +51,44 @@ urlpatterns = [
     path('admin_dentist_add', admin_dentists_add, name='admin_dentist_add'),
     path('admin_dentists', admin_dentists, name='admin_dentists'),
     path('admin_schedules', admin_schedules, name='admin_schedules'),
+    path(
+    'admin/schedules/save/',
+    admin_schedule_save,
+    name='admin_schedule_save'
+    ),
     path('admin_services', admin_services, name='admin_services'),
     path('admin_service_add', admin_service_add, name='admin_service_add'),
-    path('admin_settings', admin_settings, name='admin_settings'),
+    path(
+    'clinic-admin/settings/',
+    admin_settings,
+    name='admin_settings'
+    ),
     path('admin_testimonials', admin_testimonials, name='admin_testimonials'),
-    path('admin_blog', admin_blog, name='admin_blog'),
-    path('admin_blog_add', admin_blog_add, name='admin_blog_add'),
+    path('admin/blog/', admin_blog, name='admin_blog'),
+
+    path(
+        'admin/blog/add/',
+        admin_blog_add,
+        name='admin_blog_add'
+    ),
+
+    path(
+        'admin/blog/<int:pk>/edit/',
+        admin_blog_edit,
+        name='admin_blog_edit'
+    ),
+
+    path(
+        'admin/blog/<int:pk>/toggle/',
+        admin_blog_toggle,
+        name='admin_blog_toggle'
+    ),
+
+    path(
+        'admin/blog/<int:pk>/delete/',
+        admin_blog_delete,
+        name='admin_blog_delete'
+    ),
     path(
     'admin_dentists/<int:pk>/edit/',
     admin_dentist_edit,
@@ -103,5 +139,16 @@ urlpatterns = [
     name='dentist_detail'
     ),
     path('admin/patients/<int:pk>/edit/', admin_patient_edit, name='admin_patient_edit'),
+    path(
+    'admin/testimonials/<int:pk>/toggle/',
+    admin_testimonial_toggle,
+    name='admin_testimonial_toggle'
+    ),
+
+    path(
+        'admin/testimonials/<int:pk>/delete/',
+        admin_testimonial_delete,
+        name='admin_testimonial_delete'
+        ),
 ]
 
